@@ -16,6 +16,7 @@ packages:
             - "git-duet/tap/git-duet"
             - "git-extras"
             - "git-lfs"
+            - "gpg"
             - "imagemagick"
             - "jless"
             - "jq"
