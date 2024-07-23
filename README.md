@@ -36,4 +36,7 @@ chsh -s /opt/homebrew/bin/fish
 ```
 
 
-## Updating
+## TODOs
+
+- setup mise
+- setup
