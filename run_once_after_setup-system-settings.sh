@@ -1,14 +1,20 @@
 #!/bin/bash
 
-set -ex
+set -e
+
+echo "Skipping for now"
 
 # Setup fish shell
-echo "> Install fish shell"
-echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
-chsh -s /opt/homebrew/bin/fish
+echo "> Using fish shell"
+
+# Check if fish is the default shell
+if [ "$SHELL" != "/usr/local/bin/fish" ]; then
+    echo /usr/local/bin/fish | sudo tee -a /etc/shells
+    chsh -s /usr/local/bin/fish
+fi
 
 echo "> Install fish plugins & themes"
-fish -c "omf install"
+fish -c "omf update && omf install"
 
 echo "Setting finder preferences"
 # Show all files
@@ -54,10 +60,7 @@ duti -s dev.zed.Zed-Preview .yaml all
 duti -s dev.zed.Zed-Preview .yml all
 duti -s dev.zed.Zed-Preview .toml all
 
-killall Finder
-
-echo "Installing dev tools"
-fish -c "go install github.com/mitranim/gow@latest"
+killall Finder &>/dev/null
 
 echo "Set keyboard layout to US International PC"
 ###
