@@ -1,0 +1,72 @@
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+	aa = add --all
+	cm = commit -m
+	dcm = duet-commit -m
+	f = commit --fixup
+	df = diff
+	l = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+	fp = "!git push --force-with-lease origin \"$(git rev-parse --abbrev-ref HEAD)\""
+	rb = pull --rebase origin main
+    rbm = pull --rebase origin master
+    rbb = pull --rebase origin beta
+	ud = "!git pull --rebase origin \"$(git rev-parse --abbrev-ref HEAD)\""
+    cofurf = "!sh -c \"git cof $1 && git ud && git rb && git fp\""
+	nb = "!sh -c \"git checkout -b $1 && git push origin $1 -u --no-verify\" -"
+    cof = "!sh -c \"git fetch && git checkout $1\" -"
+	pickc = cherry-pick --continue
+	pick = cherry-pick
+[user]
+	name = Daniel Schmidt
+	email = danielmschmidt92@gmail.com
+	signingkey = 377C3A4D62FBBBE2
+[core]
+	editor = vim
+	pager = less -F -X
+	excludesFile = ~/.gitignore
+[push]
+	default = upstream
+	autoSetupRemote = true
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+[rebase]
+	autosquash = true
+	autoStash = true
+[remote "origin"]
+    fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
+[init]
+	defaultBranch = main
+[commit]
+	gpgsign = true
+[pull]
+	rebase = true
+[gpg]
+	program = gpg
+
+[pager]
+    diff = delta
+    log = delta
+    reflog = delta
+    show = delta
+
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    features = side-by-side line-numbers decorations
+    whitespace-error-style = 22 reverse
+
+[delta "decorations"]
+    commit-decoration-style = bold yellow box ul
+    file-style = bold yellow ul
+    file-decoration-style = none
+[http]
+	postBuffer = 157286400
+[url "git@github.com:"]
+	insteadOf = https://github.com/
