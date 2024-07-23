@@ -67,7 +67,6 @@ packages:
             - "hashicorp/tap/copywrite"
         casks:
             - "notion-calendar"
-            - "slack"
+            # - "slack" #TODO: Reinstall slack via homebrew
             - "slack-cli"
-            - "zoom"
         mas: []
