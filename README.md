@@ -12,3 +12,4 @@ curl -sfL https://raw.githubusercontent.com/DanielMSchmidt/dotfiles/main/.startu
 ```bash
 ./.set-keyboard.sh
 ```
+

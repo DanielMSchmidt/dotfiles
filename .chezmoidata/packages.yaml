@@ -25,11 +25,11 @@ packages:
             - "rsync"
             - "tree"
             - "vim"
+            - "wezterm"
             - "wget"
             - "z"
         casks:
             - "1password-cli"
-            - "alacritty"
             - "caffeine"
             - "docker"
             - "flux"
