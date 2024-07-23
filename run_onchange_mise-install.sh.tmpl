@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -ex
+
+# hash of the mise config file, used to determine if we need to rerun this script
+# mise/config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+
+mise install -y

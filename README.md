@@ -38,5 +38,4 @@ chsh -s /opt/homebrew/bin/fish
 
 ## TODOs
 
-- setup mise
 - setup signing key
