@@ -70,3 +70,4 @@ packages:
             - "slack"
             - "slack-cli"
             - "zoom"
+        mas: []
