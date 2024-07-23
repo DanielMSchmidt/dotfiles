@@ -2,8 +2,6 @@
 
 set -ex
 
-echo "Skipping for now"
-
 # Setup fish shell
 echo "> Using fish shell"
 
