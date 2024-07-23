@@ -12,7 +12,7 @@ brew {{ . | quote }}
 cask {{ . | quote }}
 {{ end -}}
 {{ range .packages.universal.mas -}}
-mas {{ .name | quote }}, {{ .id }}
+mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
 EOF
 {{ end -}}
@@ -30,7 +30,7 @@ brew {{ . | quote }}
 cask {{ . | quote }}
 {{ end -}}
 {{ range .packages.work.mas -}}
-mas {{ .name | quote }}, {{ .id }}
+mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
 EOF
 {{ end -}}
