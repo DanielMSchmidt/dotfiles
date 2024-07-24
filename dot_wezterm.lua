@@ -59,7 +59,7 @@ config.keys = {
     { key = 'l', mods = 'ALT',  action = wezterm.action.ShowLauncher },
     { key = 'w', mods = 'CTRL', action = wezterm.action.SwitchWorkspaceRelative(1) },
     {
-        key = 'K',
+        key = 'k',
         mods = 'CMD',
         action = wezterm.action.Multiple {
             wezterm.action.ClearScrollback 'ScrollbackAndViewport',
