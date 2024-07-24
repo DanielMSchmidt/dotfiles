@@ -57,7 +57,15 @@ config.keys = {
         action = wezterm.action.CloseCurrentTab { confirm = true },
     },
     { key = 'l', mods = 'ALT',  action = wezterm.action.ShowLauncher },
-    { key = 'w', mods = 'CTRL', action = wezterm.action.SwitchWorkspaceRelative(1) }
+    { key = 'w', mods = 'CTRL', action = wezterm.action.SwitchWorkspaceRelative(1) },
+    {
+        key = 'K',
+        mods = 'CMD',
+        action = wezterm.action.Multiple {
+            wezterm.action.ClearScrollback 'ScrollbackAndViewport',
+            wezterm.action.SendKey { key = 'L', mods = 'CTRL' },
+        },
+    },
 }
 
 -- and finally, return the configuration to wezterm
