@@ -2,7 +2,7 @@
 #!/bin/bash
 
 {{ if .isWorkComputer -}}
-export HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/dv6xj4ndkqmenm63d3f45dts3e/token" "EI6GPO6VNJAVLGDDID3B75JI6E" }}'
+export HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}'
 {{ end -}}
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
