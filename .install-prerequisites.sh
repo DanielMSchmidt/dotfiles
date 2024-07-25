@@ -12,11 +12,11 @@ else
         brew install 1password-cli
 
         # TODO: Possibly check for accounts before signing in
-        eval $(op signin --account "EI6GPO6VNJAVLGDDID3B75JI6E")
+        op account add "EI6GPO6VNJAVLGDDID3B75JI6E"
         read -p "Is this a work computer? (y/Y)" -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
-            op signin --account "2HZZS3CSKVA7REGL25XWFDGOPE"
+            op account add "2HZZS3CSKVA7REGL25XWFDGOPE"
         fi
         ;;
     *)
