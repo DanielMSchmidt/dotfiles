@@ -6,6 +6,7 @@ packages:
         brews:
             - "awscli"
             - "delve"
+            - "duti"
             - "editorconfig"
             - "ffmpeg"
             - "fish"

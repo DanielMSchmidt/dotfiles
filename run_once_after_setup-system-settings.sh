@@ -6,10 +6,12 @@ set -ex
 echo "> Using fish shell"
 
 # Check if fish is the default shell
-if [ "$SHELL" != "/usr/local/bin/fish" ]; then
-    echo /usr/local/bin/fish | sudo tee -a /etc/shells
-    chsh -s /usr/local/bin/fish
+if [ "$SHELL" != "/opt/homebrew/bin/fish" ]; then
+    echo /opt/homebrew/bin/fish | sudo tee -a /etc/shells
+    chsh -s /opt/homebrew/bin/fish
 fi
+
+fish -c "omf -v" || curl -L github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | fish
 
 echo "> Install fish plugins & themes"
 fish -c "omf update && omf install"
