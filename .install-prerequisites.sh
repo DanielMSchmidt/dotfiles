@@ -16,23 +16,10 @@ else
     esac
 fi
 
-# TODO: Try to automate this
-# # Check if the account is signed in
-# PERSONAL_ACCOUNT="EI6GPO6VNJAVLGDDID3B75JI6E"
-# WORK_ACCOUNT="2HZZS3CSKVA7REGL25XWFDGOPE"
-
-# if op vault list --account $PERSONAL_ACCOUNT >/dev/null 2>&1; then
-#     echo "Already logged into personal account"
-# else
-#     op account add --account $PERSONAL_ACCOUNT
-# fi
-
-# read -p "Is this a work computer? (y/Y)" -n 1 -r
-# echo
-# if [[ $REPLY =~ ^[Yy]$ ]]; then
-#     if op vault list --account $WORK_ACCOUNT >/dev/null 2>&1; then
-#         echo "Already logged into work account"
-#     else
-#         op account add --account $WORK_ACCOUNT
-#     fi
-# fi
+read -p "Please open 1Password, log into all accounts and set under Settings>CLI activate Integrate with 1Password CLI. Are you done? (y/Y)" -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    exit 0
+else
+    exit 1
+fi
