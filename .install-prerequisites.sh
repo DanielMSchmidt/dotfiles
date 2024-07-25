@@ -9,6 +9,7 @@ else
     case "$(uname -s)" in
     Darwin)
         brew install --cask 1password
+        brew install 1password-cli
 
         # TODO: Possibly check for accounts before signing in
         op signin --account "EI6GPO6VNJAVLGDDID3B75JI6E"
