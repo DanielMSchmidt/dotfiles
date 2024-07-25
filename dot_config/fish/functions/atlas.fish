@@ -1,7 +1,7 @@
-set -x ATLAS_PATH /Users/dschmidt/work/hashicorp/atlas
-set -x AGENT_PATH /Users/dschmidt/work/hashicorp/tfc-agent
-set -x TERRAFORM_PATH /Users/dschmidt/work/hashicorp/terraform
-set -x TERRAFORM_CREDENTIALS_FILE /Users/dschmidt/.terraform.d/credentials.tfrc.json
+set -x ATLAS_PATH $HOME/work/hashicorp/atlas
+set -x AGENT_PATH $HOME/work/hashicorp/tfc-agent
+set -x TERRAFORM_PATH $HOME/work/hashicorp/terraform
+set -x TERRAFORM_CREDENTIALS_FILE $HOME/.terraform.d/credentials.tfrc.json
 
 set -x _TFC_AGENT_STACK_COMPONENTS_ENABLED 1
 
@@ -67,7 +67,7 @@ end
 
 function agent_build_docker -d "Builds the agent docker container"
     set CURRENT_DIR (pwd)
-    cd /Users/dschmidt/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/core/components/stacks.terraformCliPath=/terraform/bin/terraform'" make docker && cd $CURRENT_DIR
+    cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/core/components/stacks.terraformCliPath=/terraform/bin/terraform'" make docker && cd $CURRENT_DIR
 end
 
 function agent_run_docker -d "Runs the agent in docker"

@@ -2,7 +2,7 @@
 set -x CHECKPOINT_DISABLE true
 
 # helpers
-alias cdktfl="/Users/dschmidt/work/cdktf/terraform-cdk/packages/cdktf-cli/bundle/bin/cdktf"
+alias cdktfl="$HOME/work/cdktf/terraform-cdk/packages/cdktf-cli/bundle/bin/cdktf"
 alias jestd="node --inspect-brk ./node_modules/jest/bin/jest.js"
 
 # TFC related
@@ -11,4 +11,4 @@ alias tfc_user_danielschmidt="cp ~/.terraform.d/credentials.tfrc.danielschmidt.j
 
 # Caching layer
 
-set -x CDKTF_EXPERIMENTAL_PROVIDER_SCHEMA_CACHE_PATH "/Users/dschmidt/.cdktf/schema-cache"
+set -x CDKTF_EXPERIMENTAL_PROVIDER_SCHEMA_CACHE_PATH "$HOME/.cdktf/schema-cache"
