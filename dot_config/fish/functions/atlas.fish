@@ -79,10 +79,17 @@ function agent_run_docker -d "Runs the agent in docker"
         -e TFC_AGENT_NAME="stack-agent-1" \
         -e TFC_ADDRESS="https://$(atlas_hostname)" \
         -e TFC_AGENT_TOKEN="$(agent_token)" \
-        -v /Users/dschmidt/work/hashicorp/terraform:/terraform \
+        -v $HOME/work/hashicorp/terraform:/terraform \
         hashicorp/tfc-agent:latest
 end
 
 function agent_build_and_run_docker -d "Builds and runs the agent"
     agent_build_docker && agent_run_docker
+end
+
+# Go-TFE tests against atlas
+function goTfeTests -d "Run go-tfe integration tests"
+    set TFE_ADDRESS "https://$(atlas_hostname)"
+    set TFE_TOKEN (atlas_token)
+    ENABLE_BETA=1 OAUTH_CLIENT_GITHUB_TOKEN=$GITHUB_TOKEN go test ./... -v
 end
