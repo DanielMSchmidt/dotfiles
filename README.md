@@ -9,7 +9,11 @@ curl -sfL https://raw.githubusercontent.com/DanielMSchmidt/dotfiles/main/.startu
 ```
 
 **Final touches**
+
+- Setting the keyboard:
 ```bash
 ./.set-keyboard.sh
 ```
 
+- Set default spotlight search to cmd+shit+space and Raycast to cmd+space
+- Configure right click

@@ -42,6 +42,7 @@ packages:
             - "monodraw"
             - "notion"
             - "obs"
+            - "raycast"
             - "rectangle"
             - "spotify"
             - "switchresx"
