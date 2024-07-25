@@ -25,7 +25,6 @@ packages:
             - "rsync"
             - "tree"
             - "vim"
-            - "wezterm"
             - "wget"
             - "z"
         casks:
@@ -45,6 +44,7 @@ packages:
             - "rectangle"
             - "spotify"
             - "switchresx"
+            - "wezterm"
             - "zed@preview"
         mas:
             - name: "Focus To-Do"
