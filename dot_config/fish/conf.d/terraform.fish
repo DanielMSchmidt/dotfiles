@@ -23,4 +23,7 @@ alias scli="/Users/dschmidt/work/hashicorp/terraform-stacks-cli/dist/tfstacks"
 alias sclib="fish -c 'cd /Users/dschmidt/work/hashicorp/terraform-stacks-cli && make build'"
 
 # Debug
-alias dlvtfrpc=" fish -c 'cd /Users/dschmidt/work/hashicorp/terraform && dlv attach (ps | grep 'terraform rpcapi' | head -1 | awk '{ print $1 }')'"
+alias dlvtfrpc="fish -c 'cd /Users/dschmidt/work/hashicorp/terraform && dlv attach (ps | grep 'terraform rpcapi' | head -1 | awk '{ print $1 }')'"
+
+# Go-TFE tests against atlas
+alias goTfeTests="ENABLE_BETA=1 OAUTH_CLIENT_GITHUB_TOKEN=$GITHUB_TOKEN TFE_ADDRESS="https://(atlas_hostname)" TFE_TOKEN=(atlas_token) go test ./... -v"
