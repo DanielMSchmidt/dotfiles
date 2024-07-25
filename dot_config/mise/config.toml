@@ -4,8 +4,8 @@ python = '3.12'
 rust = 'stable'
 go = 'latest'
 "go:github.com/mitranim/gow" = "latest"
-terraform = 'latest'
-terraform-docs = 'latest'
+#terraform = 'latest'
+#terraform-docs = 'latest'
 
 [settings]
 # plugins can read the versions files used by other version managers (if enabled by the plugin)
