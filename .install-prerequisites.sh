@@ -16,10 +16,5 @@ else
     esac
 fi
 
-read -p "Please open 1Password, log into all accounts and set under Settings>CLI activate Integrate with 1Password CLI. Are you done? (y/Y)" -n 1 -r
+read -p "Please open 1Password, log into all accounts and set under Settings>CLI activate Integrate with 1Password CLI. Press any key to continue." -n 1 -r
 echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 0
-else
-    exit 1
-fi
