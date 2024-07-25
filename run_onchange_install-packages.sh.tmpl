@@ -1,10 +1,6 @@
 {{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
 
-{{ if .isWorkComputer -}}
-export HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}'
-{{ end -}}
-
 brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range .packages.universal.taps -}}
 tap {{ . | quote | replace " " "\", \"" }}
@@ -23,7 +19,7 @@ EOF
 
 {{ if .isWorkComputer -}}
 
-brew bundle --no-lock --file=/dev/stdin <<EOF
+HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}' brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range .packages.work.taps -}}
 tap {{ . | quote | replace " " "\", \"" }}
 {{ end -}}

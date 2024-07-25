@@ -69,6 +69,9 @@ packages:
             - "hashicorp/tap/copywrite"
         casks:
             - "notion-calendar"
-            # - "slack" #TODO: Reinstall slack via homebrew
+            - "slack"
             - "slack-cli"
-        mas: []
+            - "postico"
+        mas:
+            - name: Okta Verify
+              id: 490179405
