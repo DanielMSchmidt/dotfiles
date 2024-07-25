@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-# exit immediately if password-manager-binary is already in $PATH
-type op >/dev/null 2>&1 && exit 0
 if type op >/dev/null 2>&1; then
     echo "1Password CLI is already installed, assuming you are logged in already."
 else
