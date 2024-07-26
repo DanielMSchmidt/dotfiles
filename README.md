@@ -14,6 +14,7 @@ curl -sfL https://raw.githubusercontent.com/DanielMSchmidt/dotfiles/main/.startu
 ```bash
 ./.set-keyboard.sh
 ```
-
+
+## Last manual steps
 - Set default spotlight search to cmd+shit+space and Raycast to cmd+space
 - Configure right click
