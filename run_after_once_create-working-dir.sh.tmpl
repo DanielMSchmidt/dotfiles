@@ -1,0 +1,50 @@
+#!/usr/bin/env fish
+
+
+mkdir -p $HOME/work
+mkdir -p $HOME/fun
+
+{{ if .isWorkComputer -}}
+mkdir -p $HOME/work/hashicorp
+cd $HOME/work/hashicorp
+
+# Check if the repos are already cloned
+
+if ! test -d $HOME/work/hashicorp/terraform
+    gh repo clone hashicorp/terraform
+end
+
+if ! test -d $HOME/work/hashicorp/tfc-agent
+    gh repo clone hashicorp/tfc-agent
+end
+if ! test -d $HOME/work/hashicorp/terraform-stacks-cli
+    gh repo clone hashicorp/terraform-stacks-cli
+end
+if ! test -d $HOME/work/hashicorp/go-tfe
+    gh repo clone hashicorp/go-tfe
+end
+if ! test -d $HOME/work/hashicorp/atlas
+    gh repo clone hashicorp/atlas
+end
+
+# Demos
+mkdir -p $HOME/work/hashicorp/demos
+cd $HOME/work/hashicorp/demos
+if ! test -d $HOME/work/hashicorp/demos/pet-nulls-stack
+    gh repo clone DanielMSchmidt/pet-nulls-stack
+end
+# Setup atlas
+cd $HOME/work/hashicorp/atlas
+
+
+if ! test -f $HOME/work/hashicorp/atlas/tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
+    op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" >./tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
+end
+
+{{ end -}}
+
+# cd $HOME/fun
+# My blog is all I need for now
+if ! test -d $HOME/fun/danielmschmidt.de
+    gh repo clone DanielMSchmidt/danielmschmidt.de
+end

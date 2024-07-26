@@ -61,3 +61,8 @@ duti -s dev.zed.Zed-Preview .yml all
 duti -s dev.zed.Zed-Preview .toml all
 
 killall Finder &>/dev/null
+
+{{ if .isWorkComputer -}}
+# Atlas can't deal with ipv6
+sudo networksetup -setv6off Wi-Fi
+{{ end -}}
