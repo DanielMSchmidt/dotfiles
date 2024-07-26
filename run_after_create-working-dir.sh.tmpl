@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env fish
 
 set -e
 
@@ -40,7 +40,7 @@ cd $HOME/work/hashicorp/atlas
 # Check if file exists
 
 if [ ! -f $HOME/work/hashicorp/atlas/tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }} ]; then
-    op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" > ./tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
+    op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }} >./tmp/{{
 fi
 
 {{ end -}}
