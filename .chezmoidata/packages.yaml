@@ -3,6 +3,7 @@ packages:
         taps:
             - "1password/tap"
             - "homebrew/bundle"
+            - "git-duet/tap"
         brews:
             - "duti"
             - "editorconfig"
@@ -31,7 +32,6 @@ packages:
             - "caffeine"
             - "docker"
             - "flux"
-            - "flycut"
             - "font-hack"
             - "font-hack-nerd-font"
             - "google-chrome@canary"
@@ -51,10 +51,9 @@ packages:
             - name: "Focus To-Do"
               id: "1258530160"
             - name: "WhatsApp"
-              id: "1147396723"
+              id: "310633997"
             - name: "Telegram"
               id: "747648890"
-
     work:
         taps:
             - "hashicorp/internal"
