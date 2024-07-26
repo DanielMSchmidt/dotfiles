@@ -1,0 +1,52 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p $HOME/work
+mkdir -p $HOME/fun
+
+{{ if .isWorkComputer -}}
+mkdir -p $HOME/work/hashicorp
+cd $HOME/work/hashicorp
+
+# Check if the repos are already cloned
+
+if [ ! -d $HOME/work/hashicorp/terraform ]; then
+    gh repo clone hashicorp/terraform
+fi
+
+if [ ! -d $HOME/work/hashicorp/tfc-agent ]; then
+    gh repo clone hashicorp/tfc-agent
+fi
+if [ ! -d $HOME/work/hashicorp/terraform-stacks-cli ]; then
+    gh repo clone hashicorp/terraform-stacks-cli
+fi
+if [ ! -d $HOME/work/hashicorp/go-tfe ]; then
+    gh repo clone hashicorp/go-tfe
+fi
+if [ ! -d $HOME/work/hashicorp/atlas ]; then
+    gh repo clone hashicorp/atlas
+fi
+
+# Demos
+mkdir -p $HOME/work/hashicorp/demos
+cd $HOME/work/hashicorp/demos
+if [ ! -d $HOME/work/hashicorp/demos/pet-nulls-stack ]; then
+    gh repo clone DanielMSchmidt/pet-nulls-stack
+fi
+# Setup atlas
+cd $HOME/work/hashicorp/atlas
+
+# Check if file exists
+
+if [ ! -f $HOME/work/hashicorp/atlas/tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }} ]; then
+    op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" > ./tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
+fi
+
+{{ end -}}
+
+cd $HOME/fun
+# My blog is all I need for now
+if [ ! -d $HOME/fun/danielmschmidt.de ]; then
+    gh repo clone DanielMSchmidt/danielmschmidt.de
+fi
