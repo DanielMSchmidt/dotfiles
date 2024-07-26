@@ -1,4 +1,4 @@
-#!/usr/bin/env fish
+#!/usr/bin/env endsh
 
 set -e
 
@@ -11,42 +11,41 @@ cd $HOME/work/hashicorp
 
 # Check if the repos are already cloned
 
-if [ ! -d $HOME/work/hashicorp/terraform ]; then
+if ! -d $HOME/work/hashicorp/terraform
     gh repo clone hashicorp/terraform
-fi
+end
 
-if [ ! -d $HOME/work/hashicorp/tfc-agent ]; then
+if ! -d $HOME/work/hashicorp/tfc-agent
     gh repo clone hashicorp/tfc-agent
-fi
-if [ ! -d $HOME/work/hashicorp/terraform-stacks-cli ]; then
+end
+if ! -d $HOME/work/hashicorp/terraform-stacks-cli
     gh repo clone hashicorp/terraform-stacks-cli
-fi
-if [ ! -d $HOME/work/hashicorp/go-tfe ]; then
+end
+if ! -d $HOME/work/hashicorp/go-tfe
     gh repo clone hashicorp/go-tfe
-fi
-if [ ! -d $HOME/work/hashicorp/atlas ]; then
+end
+if ! -d $HOME/work/hashicorp/atlas
     gh repo clone hashicorp/atlas
-fi
+end
 
 # Demos
 mkdir -p $HOME/work/hashicorp/demos
 cd $HOME/work/hashicorp/demos
-if [ ! -d $HOME/work/hashicorp/demos/pet-nulls-stack ]; then
+if ! -d $HOME/work/hashicorp/demos/pet-nulls-stack
     gh repo clone DanielMSchmidt/pet-nulls-stack
-fi
+end
 # Setup atlas
 cd $HOME/work/hashicorp/atlas
 
-# Check if file exists
 
-if [ ! -f $HOME/work/hashicorp/atlas/tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }} ]; then
+if  ! -f $HOME/work/hashicorp/atlas/tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
     op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }} >./tmp/{{
-fi
+end
 
 {{ end -}}
 
 cd $HOME/fun
 # My blog is all I need for now
-if [ ! -d $HOME/fun/danielmschmidt.de ]; then
+if ! -d $HOME/fun/danielmschmidt.de
     gh repo clone DanielMSchmidt/danielmschmidt.de
-fi
+end
