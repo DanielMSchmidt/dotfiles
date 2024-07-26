@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 if type op >/dev/null 2>&1; then
     echo "1Password CLI is already installed"
