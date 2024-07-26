@@ -13,6 +13,11 @@
     // - "system": Use the theme that corresponds to the system's appearance
     // - "light": Use the theme indicated by the "light" field
     // - "dark": Use the theme indicated by the "dark" field
+    "language_models": {
+        "ollama": {
+            "low_speed_timeout_in_seconds": 30
+        }
+    },
     "theme": {
         "mode": "system",
         "light": "SynthWave 84 Dark",
@@ -312,7 +317,7 @@
     },
     "assistant": {
         // Version of this setting.
-        "version": "1",
+        "version": "2",
         // Whether the assistant is enabled.
         "enabled": true,
         // Whether to show the assistant panel button in the status bar.
@@ -322,13 +327,9 @@
         // Default width when the assistant is docked to the left or right.
         "default_width": 640,
         // Default height when the assistant is docked to the bottom.
-        "default_height": 320,
+        "default_height": 640.0,
         // AI provider.
-        "provider": {
-            "name": "ollama",
-            // Recommended setting to allow for model startup
-            "low_speed_timeout_in_seconds": 30
-        }
+        "provider": null
     },
     // Whether the screen sharing icon is shown in the os status bar.
     "show_call_status_icon": true,
