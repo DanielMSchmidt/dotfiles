@@ -70,9 +70,6 @@ packages:
             - "hashicorp/tap/copywrite"
         casks:
             - "notion-calendar"
-            - "slack"
             - "slack-cli"
             - "postico"
-        mas:
-            - name: Okta Verify
-              id: 490179405
+        mas: []
