@@ -70,6 +70,5 @@ packages:
             - "hashicorp/tap/copywrite"
         casks:
             - "notion-calendar"
-            - "slack-cli"
             - "postico"
         mas: []
