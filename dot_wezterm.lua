@@ -1,5 +1,6 @@
 -- Pull in the wezterm API
 local wezterm = require 'wezterm'
+local mux = wezterm.mux
 
 -- This will hold the configuration.
 local config = wezterm.config_builder()
@@ -37,6 +38,26 @@ config.keys = {
         action = wezterm.action.ActivateTabRelative(-1),
     },
     {
+        key = 'LeftArrow',
+        mods = 'OPT',
+        action = wezterm.action.ActivatePaneDirection 'Left',
+    },
+    {
+        key = 'RightArrow',
+        mods = 'OPT',
+        action = wezterm.action.ActivatePaneDirection 'Right',
+    },
+    {
+        key = 'UpArrow',
+        mods = 'OPT',
+        action = wezterm.action.ActivatePaneDirection 'Up',
+    },
+    {
+        key = 'DownArrow',
+        mods = 'OPT',
+        action = wezterm.action.ActivatePaneDirection 'Down',
+    },
+    {
         key = 'd',
         mods = 'CMD',
         action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },
@@ -67,6 +88,43 @@ config.keys = {
         },
     },
 }
+
+-- Create workspaces on gui start
+wezterm.on('gui-startup', function(cmd)
+    -- allow `wezterm start -- something` to affect what we spawn
+    -- in our initial window
+    local args = {}
+    if cmd then
+        args = cmd.args
+    end
+
+    -- Setup a workspace for work
+    -- Open a tab in the work directory for now, maybe later open things I know I need
+    -- Top pane is for the editor, bottom pane is for the build tool
+    local project_dir = wezterm.home_dir .. '/work/hashicorp'
+    mux.spawn_window {
+        workspace = 'work',
+        cwd = project_dir,
+        args = args,
+    }
+
+    -- Setup a workspace for configuration changes (dotfiles, etc)
+    -- runs some docker containners for home automation
+    local chezmoi_dir = wezterm.home_dir .. '/.local/share/chezmoi'
+    mux.spawn_window {
+        workspace = 'config',
+        cwd = chezmoi_dir,
+    }
+
+    -- Setup a workspace for blogging
+    mux.spawn_window {
+        workspace = 'blog',
+        cwd = wezterm.home_dir .. '/fun/danielmschmidt.de',
+    }
+
+    -- We want to startup in the coding workspace
+    mux.set_active_workspace 'work'
+end)
 
 -- and finally, return the configuration to wezterm
 return config
