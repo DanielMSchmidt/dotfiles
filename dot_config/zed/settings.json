@@ -316,6 +316,10 @@
         "default_width": 380
     },
     "assistant": {
+        "default_model": {
+            "provider": "copilot_chat",
+            "model": "gpt-4"
+        },
         // Version of this setting.
         "version": "2",
         // Whether the assistant is enabled.
