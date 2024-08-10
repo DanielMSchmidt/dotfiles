@@ -35,7 +35,11 @@
     // Features that can be globally enabled or disabled
     "features": {
         // Which inline completion provider to use.
+        {{ if .isWorkComputer -}}
         "inline_completion_provider": "copilot"
+        {{- else -}}
+        "inline_completion_provider": "supermaven"
+        {{- end }}
     },
     // The name of a font to use for rendering text in the editor
     "buffer_font_family": "Zed Mono",
