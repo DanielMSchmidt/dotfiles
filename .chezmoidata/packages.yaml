@@ -37,6 +37,7 @@ packages:
             - "google-chrome@canary"
             - "imageoptim"
             - "jordanbaird-ice"
+            - "kap"
             - "maccy"
             - "monodraw"
             - "notion"
