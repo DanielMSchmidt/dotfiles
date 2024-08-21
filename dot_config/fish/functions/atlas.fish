@@ -93,3 +93,9 @@ function goTfeTests -d "Run go-tfe integration tests"
     set TFE_TOKEN (atlas_token)
     ENABLE_BETA=1 OAUTH_CLIENT_GITHUB_TOKEN=$GITHUB_TOKEN go test ./... -v
 end
+
+function atlas_rspec -d "Run atlas rspec tests"
+    set CURRENT_DIR (pwd)
+    
+    cd $ATLAS_PATH && tfcdev stack console /usr/local/bundle/bin/bundle exec rspec $argv && cd $CURRENT_DIR
+end
