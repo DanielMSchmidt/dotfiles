@@ -35,6 +35,7 @@ packages:
             - "font-hack"
             - "font-hack-nerd-font"
             - "google-chrome@canary"
+            - "github@beta"
             - "imageoptim"
             - "jordanbaird-ice"
             - "kap"
