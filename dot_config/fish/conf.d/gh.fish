@@ -12,3 +12,5 @@ alias compare="open https://github.com/(gh repo view --json='owner' --jq='.owner
 function pr_create --wraps rm --description 'creates a PR with a template and opens it in the browser'
     gh pr create --web -b="$(cat ./.github/pull_request_template.md || git log main..HEAD -q)" $argv
 end
+
+alias "prs_all"="open 'https://github.com/search?q=is%3Aopen+author%3ADanielMSchmidt+org%3Ahashicorp&type=pullrequests&state=open'"
