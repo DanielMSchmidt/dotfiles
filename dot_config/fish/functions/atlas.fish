@@ -71,9 +71,7 @@ function agent_build_docker -d "Builds the agent docker container"
 end
 
 function agent_run_docker -d "Runs the agent in docker"
-    set JAEGER_RUNNING (docker ps --filter "name=jaeger" --format "{{.Names}}" | grep -w "jaeger" > /dev/null; echo $status)
-    
-    if test $JAEGER_RUNNING -ne 0
+    if docker ps --filter "name=jaeger" --format "{{.Names}}" | grep -w "jaeger"
         docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
             TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
             -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
@@ -86,19 +84,18 @@ function agent_run_docker -d "Runs the agent in docker"
             --link jaeger \
             -v $HOME/work/hashicorp/terraform:/terraform \
             hashicorp/tfc-agent:latest
-        else
-            docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
-                TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
-                -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
-                -e TFC_AGENT_AUTO_UPDATE=disabled \
-                -e TFC_AGENT_LOG_LEVEL=debug \
-                -e TFC_AGENT_NAME="stack-agent-1" \
-                -e TFC_ADDRESS="https://$(atlas_hostname)" \
-                -e TFC_AGENT_TOKEN="$(agent_token)" \
-                -v $HOME/work/hashicorp/terraform:/terraform \
-                hashicorp/tfc-agent:latest
+    else
+        docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
+            TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
+            -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
+            -e TFC_AGENT_AUTO_UPDATE=disabled \
+            -e TFC_AGENT_LOG_LEVEL=debug \
+            -e TFC_AGENT_NAME="stack-agent-1" \
+            -e TFC_ADDRESS="https://$(atlas_hostname)" \
+            -e TFC_AGENT_TOKEN="$(agent_token)" \
+            -v $HOME/work/hashicorp/terraform:/terraform \
+            hashicorp/tfc-agent:latest
     end
-    
 end
 
 function agent_build_and_run_docker -d "Builds and runs the agent"
