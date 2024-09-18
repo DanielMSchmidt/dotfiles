@@ -71,16 +71,34 @@ function agent_build_docker -d "Builds the agent docker container"
 end
 
 function agent_run_docker -d "Runs the agent in docker"
-    docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
-        TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
-        -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
-        -e TFC_AGENT_AUTO_UPDATE=disabled \
-        -e TFC_AGENT_LOG_LEVEL=debug \
-        -e TFC_AGENT_NAME="stack-agent-1" \
-        -e TFC_ADDRESS="https://$(atlas_hostname)" \
-        -e TFC_AGENT_TOKEN="$(agent_token)" \
-        -v $HOME/work/hashicorp/terraform:/terraform \
-        hashicorp/tfc-agent:latest
+    set JAEGER_RUNNING (docker ps --filter "name=jaeger" --format "{{.Names}}" | grep -w "jaeger" > /dev/null; echo $status)
+    
+    if test $JAEGER_RUNNING -ne 0
+        docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
+            TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
+            -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
+            -e TFC_AGENT_AUTO_UPDATE=disabled \
+            -e TFC_AGENT_LOG_LEVEL=debug \
+            -e TFC_AGENT_NAME="stack-agent-1" \
+            -e TFC_ADDRESS="https://$(atlas_hostname)" \
+            -e TFC_AGENT_TOKEN="$(agent_token)" \
+            -e TFC_AGENT_OTLP_ADDRESS="jaeger:4317" \
+            --link jaeger \
+            -v $HOME/work/hashicorp/terraform:/terraform \
+            hashicorp/tfc-agent:latest
+        else
+            docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
+                TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
+                -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
+                -e TFC_AGENT_AUTO_UPDATE=disabled \
+                -e TFC_AGENT_LOG_LEVEL=debug \
+                -e TFC_AGENT_NAME="stack-agent-1" \
+                -e TFC_ADDRESS="https://$(atlas_hostname)" \
+                -e TFC_AGENT_TOKEN="$(agent_token)" \
+                -v $HOME/work/hashicorp/terraform:/terraform \
+                hashicorp/tfc-agent:latest
+    end
+    
 end
 
 function agent_build_and_run_docker -d "Builds and runs the agent"
@@ -98,4 +116,29 @@ function atlas_rspec -d "Run atlas rspec tests"
     set CURRENT_DIR (pwd)
     
     cd $ATLAS_PATH && tfcdev stack console /usr/local/bundle/bin/bundle exec rspec $argv && cd $CURRENT_DIR
+end
+
+function jaeger_start -d "Starts Jaeger Tracing"
+    docker run -d --rm --name jaeger \
+      -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
+      -p 6831:6831/udp \
+      -p 6832:6832/udp \
+      -p 5778:5778 \
+      -p 16686:16686 \
+      -p 4317:4317 \
+      -p 4318:4318 \
+      -p 14250:14250 \
+      -p 14268:14268 \
+      -p 14269:14269 \
+      -p 9411:9411 \
+      -e COLLECTOR_OTLP_ENABLED=true \
+      jaegertracing/all-in-one:1.61.0
+end
+
+function jaeger_open -d "Opens Jaeger UI"
+    open "http://localhost:16686"
+end
+
+function jaeger_stop -d "Stops Jaeger"
+    docker stop jaeger
 end
