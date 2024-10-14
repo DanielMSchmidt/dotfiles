@@ -71,6 +71,7 @@ packages:
             - "hashicorp/security/tsccr-helper"
             - "hashicorp/tap/copywrite"
         casks:
+            - "deskpad"
             - "notion-calendar"
             - "postico"
         mas: []
