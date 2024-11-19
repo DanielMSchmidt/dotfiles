@@ -9,6 +9,7 @@ packages:
             - "editorconfig"
             - "ffmpeg"
             - "fish"
+            - "fisher"
             - "gh"
             - "git"
             - "git-absorb"
@@ -56,6 +57,9 @@ packages:
               id: "310633997"
             - name: "Telegram"
               id: "747648890"
+        fisher:
+            - "IlanCosman/tide@v6"
+            - "jethrokuan/z"
     work:
         taps:
             - "hashicorp/internal"
@@ -75,3 +79,4 @@ packages:
             - "notion-calendar"
             - "postico"
         mas: []
+        fisher: []

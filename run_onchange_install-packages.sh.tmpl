@@ -15,6 +15,9 @@ cask {{ . | quote }}
 mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
 EOF
+{{ range .packages.universal.fisher -}}
+fish -c 'fisher install {{ . | quote }}'
+{{ end -}}
 {{ end -}}
 
 {{ if .isWorkComputer -}}
@@ -33,6 +36,9 @@ cask {{ . | quote }}
 mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
 EOF
+{{ range .packages.work.fisher -}}
+fish -c 'fisher install {{ . | quote }}'
+{{ end -}}
 {{ end -}}
 
 # Unfortunately I did not yet find a way to order scripts so I'm inlining this. Should all be pretty much a no-op anyways.
@@ -56,11 +62,11 @@ else
     gpg --import $tmpFile
 fi
 
-
-
 # Also inlined sub-script depending on a dependency
 
 # hash of the mise config file, used to determine if we need to rerun this script
 # mise/config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
 
 fish -c 'mise install -y'
+
+fish -c 'tide configure --auto --style=Rainbow --prompt_colors='True color' --show_time='24-hour format' --rainbow_prompt_separators=Angled --powerline_prompt_heads=Sharp --powerline_prompt_tails=Flat --powerline_prompt_style='Two lines, character' --prompt_connection=Solid --powerline_right_prompt_frame=Yes --prompt_connection_andor_frame_color=Light --prompt_spacing=Sparse --icons='Few icons' --transient=No'

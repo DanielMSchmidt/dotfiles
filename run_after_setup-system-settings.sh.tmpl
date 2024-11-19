@@ -11,11 +11,6 @@ if [ "$SHELL" != "/opt/homebrew/bin/fish" ]; then
     chsh -s /opt/homebrew/bin/fish
 fi
 
-fish -c "omf -v" || curl -L github.com/oh-my-fish/oh-my-fish/raw/master/bin/install | fish
-
-echo "> Install fish plugins & themes"
-fish -c "omf update && omf install"
-
 echo "Setting finder preferences"
 # Show all files
 defaults write com.apple.finder AppleShowAllFiles YES
