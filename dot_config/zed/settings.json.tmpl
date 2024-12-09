@@ -28,9 +28,11 @@
     // text editor:
     //
     // 1. "VSCode"
-    // 2. "JetBrains"
-    // 3. "SublimeText"
-    // 4. "Atom"
+    // 2. "Atom"
+    // 3. "JetBrains"
+    // 4. "None"
+    // 5. "SublimeText"
+    // 6. "TextMate"
     "base_keymap": "VSCode",
     // Features that can be globally enabled or disabled
     "features": {
@@ -42,7 +44,10 @@
         {{- end }}
     },
     // The name of a font to use for rendering text in the editor
-    "buffer_font_family": "Zed Mono",
+    "buffer_font_family": "Zed Plex Mono",
+    // Set the buffer text's font fallbacks, this will be merged with
+    // the platform's default fallbacks.
+    "buffer_font_fallbacks": null,
     // The OpenType features to enable for text in the editor.
     "buffer_font_features": {
         // Disable ligatures:
@@ -50,6 +55,8 @@
     },
     // The default font size for text in the editor
     "buffer_font_size": 16,
+    // The weight of the editor font in standard CSS units from 100 to 900.
+    "buffer_font_weight": 400,
     // Set the buffer's line height.
     // May take 3 values:
     //  1. Use a line height that's comfortable for reading (1.618)
@@ -62,17 +69,37 @@
     //         },
     "buffer_line_height": "comfortable",
     // The name of a font to use for rendering text in the UI
-    "ui_font_family": ".SystemUIFont",
+    // You can set this to ".SystemUIFont" to use the system font
+    "ui_font_family": "Zed Plex Sans",
+    // Set the UI's font fallbacks, this will be merged with the platform's
+    // default font fallbacks.
+    "ui_font_fallbacks": null,
     // The OpenType features to enable for text in the UI
     "ui_font_features": {
         // Disable ligatures:
         "calt": false
     },
+    // The weight of the UI font in standard CSS units from 100 to 900.
+    "ui_font_weight": 400,
     // The default font size for text in the UI
     "ui_font_size": 16,
-    // The factor to grow the active pane by. Defaults to 1.0
-    // which gives the same size as all other panes.
-    "active_pane_magnification": 1.0,
+    // How much to fade out unused code.
+    "unnecessary_code_fade": 0.3,
+    // Active pane styling settings.
+    "active_pane_modifiers": {
+        // The factor to grow the active pane by. Defaults to 1.0
+        // which gives the same size as all other panes.
+        "magnification": 1.0,
+        // Inset border size of the active pane, in pixels.
+        "border_size": 0.0,
+        // Opacity of the inactive panes. 0 means transparent, 1 means opaque.
+        // Values are clamped to the [0.0, 1.0] range.
+        "inactive_opacity": 1.0
+    },
+    // The direction that you want to split panes horizontally. Defaults to "up"
+    "pane_split_direction_horizontal": "up",
+    // The direction that you want to split panes horizontally. Defaults to "left"
+    "pane_split_direction_vertical": "left",
     // Centered layout related settings.
     "centered_layout": {
         // The relative width of the left padding of the central pane from the
@@ -107,7 +134,22 @@
     //         "when_closing_with_no_tabs": "keep_window_open",
     "when_closing_with_no_tabs": "platform_default",
     // Whether the cursor blinks in the editor.
+    // Whether to use the system provided dialogs for Open and Save As.
+    // When set to false, Zed will use the built-in keyboard-first pickers.
+    "use_system_path_prompts": true,
     "cursor_blink": true,
+    // Cursor shape for the default editor.
+    //  1. A vertical bar
+    //     "bar"
+    //  2. A block that surrounds the following character
+    //     "block"
+    //  3. An underline / underscore that runs along the following character
+    //     "underline"
+    //  4. A box drawn around the following character
+    //     "hollow"
+    //
+    // Default: not set, defaults to "bar"
+    "cursor_shape": null,
     // How to highlight the current line in the editor.
     //
     // 1. Don't highlight the current line:
@@ -128,6 +170,11 @@
     // The debounce delay before re-querying the language server for completion
     // documentation when not included in original completion list.
     "completion_documentation_secondary_query_debounce": 300,
+    // Show method signatures in the editor, when inside parentheses.
+    "auto_signature_help": true,
+    /// Whether to show the signature help after completion or a bracket pair inserted.
+    /// If `auto_signature_help` is enabled, this setting will be treated as enabled also.
+  "show_signature_help_after_edits": false,
     // Whether to show wrap guides in the editor. Setting this to true will
     // show a guide at the 'preferred_line_length' value if 'soft_wrap' is set to
     // 'preferred_line_length', and will show any additional guides as specified
@@ -137,6 +184,8 @@
     "wrap_guides": [],
     // Hide the values of in variables from visual display in private files
     "redact_private_values": false,
+    // The default number of lines to expand excerpts in the multibuffer by.
+    "expand_excerpt_lines": 3,
     // Globs to match against file paths to determine if a file is private.
     "private_files": [
         "**/.env*",
@@ -153,15 +202,24 @@
     // opening parenthesis, bracket, brace, single or double quote characters.
     // For example, when you type (, Zed will add a closing ) at the correct position.
     "use_autoclose": true,
+    // Whether to automatically surround selected text when typing opening parenthesis,
+    // bracket, brace, single or double quote characters.
+    // For example, when you select text and type (, Zed will surround the text with ().
+    "use_auto_surround": true,
+    // Whether indentation of pasted content should be adjusted based on the context.
+    "auto_indent_on_paste": true,
     // Controls how the editor handles the autoclosed characters.
     // When set to `false`(default), skipping over and auto-removing of the closing characters
     // happen only for auto-inserted characters.
     // Otherwise(when `true`), the closing characters are always skipped over and auto-removed
     // no matter how they were inserted.
     "always_treat_brackets_as_autoclosed": false,
-    // Controls whether copilot provides suggestion immediately
-    // or waits for a `copilot::Toggle`
-    "show_copilot_suggestions": true,
+    // Controls whether inline completions are shown immediately (true)
+    // or manually by triggering `editor::ShowInlineCompletion` (false).
+    "show_inline_completions": true,
+    // Controls whether inline completions are shown in a given language scope.
+    // Example: ["string", "comment"]
+    "inline_completions_disabled_in": [],
     // Whether to show tabs and spaces in the editor.
     // This setting can take three values:
     //
@@ -191,6 +249,8 @@
         "breadcrumbs": true,
         // Whether to show quick action buttons.
         "quick_actions": true
+        // Whether to show the Selections menu in the editor toolbar
+        "selections_menu": true
     },
     // Scrollbar related settings
     "scrollbar": {
@@ -218,6 +278,8 @@
         // Whether to show diagnostic indicators in the scrollbar.
         "diagnostics": true
     },
+    // Enable middle-click paste on Linux.
+    "middle_click_paste": true,
     // What to do when multibuffer is double clicked in some of its excerpts
     // (parts of singleton buffers).
     // May take 2 values:
@@ -232,15 +294,42 @@
         "line_numbers": true,
         // Whether to show code action buttons in the gutter.
         "code_actions": true,
+        // Whether to show runnables buttons in the gutter.
+        "runnables": true,
         // Whether to show fold buttons in the gutter.
         "folds": true
     },
+    "indent_guides": {
+        /// Whether to show indent guides in the editor.
+        "enabled": true,
+        /// The width of the indent guides in pixels, between 1 and 10.
+        "line_width": 1,
+        /// The width of the active indent guide in pixels, between 1 and 10.
+        "active_line_width": 1,
+        /// Determines how indent guides are colored.
+        /// This setting can take the following three values:
+        ///
+        /// 1. "disabled"
+        /// 2. "fixed"
+        /// 3. "indent_aware"
+        "coloring": "fixed",
+        /// Determines how indent guide backgrounds are colored.
+        /// This setting can take the following two values:
+        ///
+        /// 1. "disabled"
+        /// 2. "indent_aware"
+        "background_coloring": "disabled"
+    },
+    // Whether the editor will scroll beyond the last line.
+    "scroll_beyond_last_line": "one_page",
     // The number of lines to keep above/below the cursor when scrolling.
     "vertical_scroll_margin": 3,
     // Scroll sensitivity multiplier. This multiplier is applied
     // to both the horizontal and vertical delta values while scrolling.
     "scroll_sensitivity": 1.0,
     "relative_line_numbers": false,
+    // If 'search_wrap' is disabled, search result do not wrap around the end of the file.
+    "search_wrap": true,
     // When to populate a new search's query based on the text under the cursor.
     // This setting can take the following three values:
     //
@@ -260,6 +349,10 @@
         "show_parameter_hints": true,
         // Corresponds to null/None LSP hint type value.
         "show_other_hints": true,
+        // Whether to show a background for inlay hints.
+        //
+        // If set to `true`, the background will use the `hint.background` color from the current theme.
+        "show_background": false,
         // Time to wait after editing the buffer, before requesting the hints,
         // set to 0 to disable debouncing.
         "edit_debounce_ms": 700,
@@ -288,7 +381,45 @@
         "auto_reveal_entries": true,
         /// Whether to fold directories automatically
         /// when a directory has only one directory inside.
-        "auto_fold_dirs": false
+        "auto_fold_dirs": false,
+        /// Scrollbar-related settings
+        "scrollbar": {
+            /// When to show the scrollbar in the project panel.
+            /// This setting can take four values:
+            ///
+            /// 1. null (default): Inherit editor settings
+            /// 2. Show the scrollbar if there's important information or
+            ///    follow the system's configured behavior (default):
+            ///   "auto"
+            /// 3. Match the system's configured behavior:
+            ///    "system"
+            /// 4. Always show the scrollbar:
+            ///    "always"
+            /// 5. Never show the scrollbar:
+            ///    "never"
+            "show": null
+        },
+        /// Which files containing diagnostic errors/warnings to mark in the project panel.
+        /// This setting can take the following three values:
+        ///
+        /// 1. Do not mark any files:
+        ///    "off"
+        /// 2. Only mark files with errors:
+        ///    "errors"
+        /// 3. Mark files with errors and warnings:
+        ///    "all"
+        "show_diagnostics": "all",
+        // Settings related to indent guides in the project panel.
+        "indent_guides": {
+            // When to show indent guides in the project panel.
+            // This setting can take two values:
+            //
+            // 1. Always show indent guides:
+            //    "always"
+            // 2. Never show indent guides:
+            //    "never"
+            "show": "always"
+        }
     },
     "collaboration_panel": {
         // Whether to show the collaboration panel button in the status bar.
