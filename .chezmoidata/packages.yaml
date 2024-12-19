@@ -31,6 +31,7 @@ packages:
         casks:
             - "1password-cli"
             - "caffeine"
+            - "cmake"
             - "docker"
             - "flux"
             - "font-hack"
@@ -57,6 +58,8 @@ packages:
               id: "310633997"
             - name: "Telegram"
               id: "747648890"
+            - name: "Xcode"
+              id: "497799835"
         fisher:
             - "IlanCosman/tide@v6"
             - "jethrokuan/z"
