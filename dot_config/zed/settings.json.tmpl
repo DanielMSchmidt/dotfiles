@@ -38,9 +38,9 @@
     "features": {
         // Which inline completion provider to use.
         {{ if .isWorkComputer -}}
-        "inline_completion_provider": "copilot"
+        "edit_prediction_provider": "copilot"
         {{- else -}}
-        "inline_completion_provider": "supermaven"
+        "edit_prediction_provider": "supermaven"
         {{- end }}
     },
     // The name of a font to use for rendering text in the editor
@@ -216,10 +216,10 @@
     "always_treat_brackets_as_autoclosed": false,
     // Controls whether inline completions are shown immediately (true)
     // or manually by triggering `editor::ShowInlineCompletion` (false).
-    "show_inline_completions": true,
+    "show_edit_predictions": true,
     // Controls whether inline completions are shown in a given language scope.
     // Example: ["string", "comment"]
-    "inline_completions_disabled_in": [],
+    "edit_predictions_disabled_in": [],
     // Whether to show tabs and spaces in the editor.
     // This setting can take three values:
     //
