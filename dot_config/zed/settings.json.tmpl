@@ -40,8 +40,8 @@
         {{ if .isWorkComputer -}}
         "edit_prediction_provider": "copilot"
         {{- else -}}
-        "edit_prediction_provider": "supermaven"
-        {{- end }}
+        "edit_prediction_provider": "zed"
+        {{- end -}}
     },
     // The name of a font to use for rendering text in the editor
     "buffer_font_family": "Zed Plex Mono",
@@ -54,7 +54,7 @@
         // "calt": false
     },
     // The default font size for text in the editor
-    "buffer_font_size": 16,
+    "buffer_font_size": 16.0,
     // The weight of the editor font in standard CSS units from 100 to 900.
     "buffer_font_weight": 400,
     // Set the buffer's line height.
@@ -276,7 +276,7 @@
         // Whether to show selected symbol occurrences in the scrollbar.
         "selected_symbol": true,
         // Whether to show diagnostic indicators in the scrollbar.
-        "diagnostics": true
+        "diagnostics": "all"
     },
     // Enable middle-click paste on Linux.
     "middle_click_paste": true,
@@ -431,7 +431,7 @@
     },
     "chat_panel": {
         // Whether to show the chat panel button in the status bar.
-        "button": true,
+        "button": "always",
         // Where to the chat panel. Can be 'left' or 'right'.
         "dock": "right",
         // Default width of the chat panel.
