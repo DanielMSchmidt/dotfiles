@@ -82,5 +82,6 @@ packages:
             - "deskpad"
             - "notion-calendar"
             - "postico"
+            - "microsoft-teams"
         mas: []
         fisher: []
