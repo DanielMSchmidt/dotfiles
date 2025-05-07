@@ -78,6 +78,7 @@ packages:
             - "hashicorp/security/doormat-cli"
             - "hashicorp/security/tsccr-helper"
             - "hashicorp/tap/copywrite"
+            - "bufbuild/buf/buf"
         casks:
             - "deskpad"
             - "notion-calendar"
