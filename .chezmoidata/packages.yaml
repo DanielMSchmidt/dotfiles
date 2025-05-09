@@ -49,7 +49,6 @@ packages:
             - "raycast"
             - "rectangle-pro"
             - "spotify"
-            - "switchresx"
             - "wezterm"
             - "zed@preview"
         mas:
