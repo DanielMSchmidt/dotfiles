@@ -39,6 +39,25 @@ EOF
 {{ range .packages.work.fisher -}}
 fish -c 'fisher install {{ . | quote }}'
 {{ end -}}
+
+{{ else -}}
+brew bundle --no-lock --file=/dev/stdin <<EOF
+{{ range .packages.private.taps -}}
+tap {{ . | quote | replace " " "\", \"" }}
+{{ end -}}
+{{ range .packages.private.brews -}}
+brew {{ . | quote }}
+{{ end -}}
+{{ range .packages.private.casks -}}
+cask {{ . | quote }}
+{{ end -}}
+{{ range .packages.private.mas -}}
+mas {{ .name | quote }}, id: {{ .id }}
+{{ end -}}
+EOF
+{{ range .packages.private.fisher -}}
+fish -c 'fisher install {{ . | quote }}'
+{{ end -}}
 {{ end -}}
 
 # Unfortunately I did not yet find a way to order scripts so I'm inlining this. Should all be pretty much a no-op anyways.

@@ -45,7 +45,6 @@ packages:
             - "maccy"
             - "monodraw"
             - "obs"
-            - "obsidian"
             - "raycast"
             - "rectangle-pro"
             - "spotify"
@@ -83,5 +82,14 @@ packages:
             - "notion-calendar"
             - "postico"
             - "microsoft-teams"
+            - "obsidian"
+        mas: []
+        fisher: []
+
+    private:
+        taps: []
+        brews: []
+        casks:
+            - "notion"
         mas: []
         fisher: []

@@ -4,7 +4,7 @@
 [
     {
         "label": "Terraform: Find failing tests",
-        "command": "fish -c "go test -v ./... | grep \"FAIL\"\"",
+        "command": "fish -c \"go test -v ./... | grep 'FAIL'\"",
         //"args": [],
         // Env overrides for the command, will be appended to the terminal's environment from the settings.
         "env": {},
