@@ -71,6 +71,7 @@ packages:
         brews:
             - "awscli"
             - "delve"
+            - "deskpad"
             - "hashicorp/internal/tfcdev"
             - "hashicorp/releng/bob"
             - "hashicorp/security/doormat-cli"
