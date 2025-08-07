@@ -17,3 +17,23 @@ end
 function goTestFails -d "Runs all tests and finds fails"
     goTestAll | grep "FAIL"
 end
+
+function triggerwatch -d "Watches for a trigger and runs the given command when triggered"
+    set -l triggerfile /tmp/fish_triggerwatch_trigger
+    set -l cmd $argv
+
+    echo "Watching for trigger. Run 'triggerfire' in another shell to trigger."
+    while true
+        if test -f $triggerfile
+            rm $triggerfile
+            echo "Trigger fired, executing command: $cmd"
+            eval $cmd
+        end
+        sleep 1
+    end
+end
+
+function triggerfire -d "Fires the trigger for triggerwatch"
+    set -l triggerfile /tmp/fish_triggerwatch_trigger
+    touch $triggerfile
+end

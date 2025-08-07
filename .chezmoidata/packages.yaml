@@ -83,7 +83,6 @@ packages:
             - "notion-calendar"
             - "postico"
             - "microsoft-teams"
-            - "obsidian"
         mas: []
         fisher: []
 

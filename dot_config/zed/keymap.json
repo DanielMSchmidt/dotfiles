@@ -6,7 +6,9 @@
             "cmd-l": "editor::FindAllReferences",
             "cmd-.": "editor::ToggleCodeActions",
             "cmd-r": "editor::Rename",
-            "cmd-shift-i": "go_to_line::Toggle"
+            "cmd-shift-i": "go_to_line::Toggle",
+            "ctrl-left": "pane::GoBack",
+            "ctrl-right": "pane::GoForward"
         }
     }
 ]

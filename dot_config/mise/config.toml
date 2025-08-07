@@ -42,3 +42,4 @@ not_found_auto_install = true # see MISE_NOT_FOUND_AUTO_INSTALL
 # disable_tools = ['node']           # disable specific tools, generally used to turn off core tools
 
 experimental = true # enable experimental features
+idiomatic_version_file_enable_tools = ["go"]
