@@ -37,3 +37,13 @@ function triggerfire -d "Fires the trigger for triggerwatch"
     set -l triggerfile /tmp/fish_triggerwatch_trigger
     touch $triggerfile
 end
+
+function triggerfireblock -d "Fires the trigger for triggerwatch and waits until it's processed"
+    set -l triggerfile /tmp/fish_triggerwatch_trigger
+    touch $triggerfile
+    echo "Trigger fired, waiting for processing..."
+    while test -f $triggerfile
+        sleep 0.1
+    end
+    echo "Trigger processed."
+end
