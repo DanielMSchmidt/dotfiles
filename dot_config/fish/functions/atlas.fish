@@ -67,7 +67,7 @@ end
 
 function agent_build_docker -d "Builds the agent docker container"
     set CURRENT_DIR (pwd)
-    cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/core/components/stacks.terraformCliPath=/terraform/bin/terraform'" make docker && cd $CURRENT_DIR
+    cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/internal/development.terraformCliPath=/terraform/bin/terraform'" make docker && cd $CURRENT_DIR
 end
 
 function agent_run_docker -d "Runs the agent in docker"
