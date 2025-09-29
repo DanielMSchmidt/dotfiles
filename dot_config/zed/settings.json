@@ -579,9 +579,7 @@
     },
     // Whether to resize all the panels in a dock when resizing the dock.
     // Can be a combination of "left", "right" and "bottom".
-    "resize_all_panels_in_dock": [
-        "left"
-    ],
+    "resize_all_panels_in_dock": ["left"],
     "project_panel": {
         // Whether to show the project panel button in the status bar
         "button": true,
@@ -910,9 +908,7 @@
     // The list of language servers to use (or disable) for all languages.
     //
     // This is typically customized on a per-language basis.
-    "language_servers": [
-        "..."
-    ],
+    "language_servers": ["..."],
     // When to automatically save edited buffers. This setting can
     // take four values.
     //
@@ -1165,9 +1161,7 @@
     // for files that are not tracked by git, but are still important to your project. Note that globs
     // that are overly broad can slow down Zed's file scanning. `file_scan_exclusions` takes
     // precedence over these inclusions.
-    "file_scan_inclusions": [
-        ".env*"
-    ],
+    "file_scan_inclusions": [".env*"],
     // Git gutter behavior configuration.
     "git": {
         // Control whether the git gutter is shown. May take 2 values:
@@ -1366,12 +1360,7 @@
                 // Default directories to search for virtual environments, relative
                 // to the current working directory. We recommend overriding this
                 // in your project's settings, rather than globally.
-                "directories": [
-                    ".env",
-                    "env",
-                    ".venv",
-                    "venv"
-                ],
+                "directories": [".env", "env", ".venv", "venv"],
                 // Can also be `csh`, `fish`, `nushell` and `power_shell`
                 "activate_script": "fish"
             }
@@ -1468,9 +1457,7 @@
             "**/Zed/**/*.json",
             "**/.vscode/**/*.json"
         ],
-        "Shell Script": [
-            ".env.*"
-        ]
+        "Shell Script": [".env.*"]
     },
     // Settings for which version of Node.js and NPM to use when installing
     // language servers and Copilot.
@@ -1544,15 +1531,10 @@
     // Different settings for specific languages.
     "languages": {
         "Astro": {
-            "language_servers": [
-                "astro-language-server",
-                "..."
-            ],
+            "language_servers": ["astro-language-server", "..."],
             "prettier": {
                 "allowed": true,
-                "plugins": [
-                    "prettier-plugin-astro"
-                ]
+                "plugins": ["prettier-plugin-astro"]
             }
         },
         "Blade": {
@@ -1588,22 +1570,13 @@
             "ensure_final_newline_on_save": false
         },
         "Elixir": {
-            "language_servers": [
-                "elixir-ls",
-                "!next-ls",
-                "!lexical",
-                "..."
-            ]
+            "language_servers": ["elixir-ls", "!next-ls", "!lexical", "..."]
         },
         "Elm": {
             "tab_size": 4
         },
         "Erlang": {
-            "language_servers": [
-                "erlang-ls",
-                "!elp",
-                "..."
-            ]
+            "language_servers": ["erlang-ls", "!elp", "..."]
         },
         "Git Commit": {
             "allow_rewrap": "anywhere",
@@ -1614,9 +1587,7 @@
             "code_actions_on_format": {
                 "source.organizeImports": true
             },
-            "debuggers": [
-                "Delve"
-            ]
+            "debuggers": ["Delve"]
         },
         "GraphQL": {
             "prettier": {
@@ -1624,12 +1595,7 @@
             }
         },
         "HEEX": {
-            "language_servers": [
-                "elixir-ls",
-                "!next-ls",
-                "!lexical",
-                "..."
-            ]
+            "language_servers": ["elixir-ls", "!next-ls", "!lexical", "..."]
         },
         "HTML": {
             "prettier": {
@@ -1639,17 +1605,11 @@
         "Java": {
             "prettier": {
                 "allowed": true,
-                "plugins": [
-                    "prettier-plugin-java"
-                ]
+                "plugins": ["prettier-plugin-java"]
             }
         },
         "JavaScript": {
-            "language_servers": [
-                "!typescript-language-server",
-                "vtsls",
-                "..."
-            ],
+            "language_servers": ["!typescript-language-server", "vtsls", "..."],
             "prettier": {
                 "allowed": true
             }
@@ -1666,15 +1626,10 @@
         },
         "LaTeX": {
             "formatter": "language_server",
-            "language_servers": [
-                "texlab",
-                "..."
-            ],
+            "language_servers": ["texlab", "..."],
             "prettier": {
                 "allowed": true,
-                "plugins": [
-                    "prettier-plugin-latex"
-                ]
+                "plugins": ["prettier-plugin-latex"]
             }
         },
         "Markdown": {
@@ -1690,16 +1645,10 @@
             }
         },
         "PHP": {
-            "language_servers": [
-                "phpactor",
-                "!intelephense",
-                "..."
-            ],
+            "language_servers": ["phpactor", "!intelephense", "..."],
             "prettier": {
                 "allowed": true,
-                "plugins": [
-                    "@prettier/plugin-php"
-                ],
+                "plugins": ["@prettier/plugin-php"],
                 "parser": "php"
             }
         },
@@ -1710,24 +1659,13 @@
             "allow_rewrap": "anywhere"
         },
         "Python": {
-            "debuggers": [
-                "Debugpy"
-            ]
+            "debuggers": ["Debugpy"]
         },
         "Ruby": {
-            "language_servers": [
-                "solargraph",
-                "!ruby-lsp",
-                "!rubocop",
-                "!sorbet",
-                "!steep",
-                "..."
-            ]
+            "language_servers": ["solargraph", "!ruby-lsp", "!rubocop", "!sorbet", "!steep", "..."]
         },
         "Rust": {
-            "debuggers": [
-                "CodeLLDB"
-            ]
+            "debuggers": ["CodeLLDB"]
         },
         "SCSS": {
             "prettier": {
@@ -1735,30 +1673,17 @@
             }
         },
         "Starlark": {
-            "language_servers": [
-                "starpls",
-                "!buck2-lsp",
-                "..."
-            ]
+            "language_servers": ["starpls", "!buck2-lsp", "..."]
         },
         "Svelte": {
-            "language_servers": [
-                "svelte-language-server",
-                "..."
-            ],
+            "language_servers": ["svelte-language-server", "..."],
             "prettier": {
                 "allowed": true,
-                "plugins": [
-                    "prettier-plugin-svelte"
-                ]
+                "plugins": ["prettier-plugin-svelte"]
             }
         },
         "TSX": {
-            "language_servers": [
-                "!typescript-language-server",
-                "vtsls",
-                "..."
-            ],
+            "language_servers": ["!typescript-language-server", "vtsls", "..."],
             "prettier": {
                 "allowed": true
             }
@@ -1769,11 +1694,7 @@
             }
         },
         "TypeScript": {
-            "language_servers": [
-                "!typescript-language-server",
-                "vtsls",
-                "..."
-            ],
+            "language_servers": ["!typescript-language-server", "vtsls", "..."],
             "prettier": {
                 "allowed": true
             }
@@ -1783,10 +1704,7 @@
             "use_on_type_format": false
         },
         "Vue.js": {
-            "language_servers": [
-                "vue-language-server",
-                "..."
-            ],
+            "language_servers": ["vue-language-server", "..."],
             "prettier": {
                 "allowed": true
             }
@@ -1794,9 +1712,7 @@
         "XML": {
             "prettier": {
                 "allowed": true,
-                "plugins": [
-                    "@prettier/plugin-xml"
-                ]
+                "plugins": ["@prettier/plugin-xml"]
             }
         },
         "YAML": {
@@ -1805,10 +1721,7 @@
             }
         },
         "Zig": {
-            "language_servers": [
-                "zls",
-                "..."
-            ]
+            "language_servers": ["zls", "..."]
         }
     },
     // Different settings for specific language models.
@@ -2003,5 +1916,5 @@
     //     }
     //   }
     // }
-    "profiles": []
+    "profiles": {}
 }
