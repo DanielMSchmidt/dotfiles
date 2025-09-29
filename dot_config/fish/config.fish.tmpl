@@ -32,5 +32,6 @@ set PATH $PATH $HOME/.local/bin
 set --universal tide_right_prompt_items status cmd_duration context jobs direnv node python rustc ruby go gcloud distrobox toolbox terraform aws nix_shell crystal elixir zig time
 
 {{ if .isWorkComputer -}}
-eval "$(tfcdev rc)"
+# disabled for now
+# eval "$(tfcdev rc)"
 {{ end -}}
