@@ -7,7 +7,8 @@ else
     case "$(uname -s)" in
     Darwin)
         brew install --cask 1password
-        brew install 1password-cli
+        brew install 1password-cli git fish wget gpg fisher gh
+        fisher install IlanCosman/tide@v6
         ;;
     *)
         echo "unsupported OS"
