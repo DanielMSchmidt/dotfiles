@@ -47,3 +47,8 @@ function triggerfireblock -d "Fires the trigger for triggerwatch and waits until
     end
     echo "Trigger processed."
 end
+
+# Print dot graph to terminal
+function dotgraph
+    pbpaste | dot -T png -Gbgcolor=transparent | viu -
+end

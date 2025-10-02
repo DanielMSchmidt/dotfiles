@@ -18,6 +18,7 @@ packages:
             - "git-extras"
             - "git-lfs"
             - "gpg"
+            - "graphviz"
             - "imagemagick"
             - "jless"
             - "jq"
@@ -26,6 +27,7 @@ packages:
             - "rsync"
             - "tree"
             - "vim"
+            - "viu"
             - "wget"
             - "z"
         casks:
