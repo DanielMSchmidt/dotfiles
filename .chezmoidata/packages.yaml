@@ -80,6 +80,7 @@ packages:
             - "hashicorp/security/tsccr-helper"
             - "hashicorp/tap/copywrite"
             - "bufbuild/buf/buf"
+            - "warrensbox/tap/tfswitch"
         casks:
             - "deskpad"
             - "notion-calendar"
