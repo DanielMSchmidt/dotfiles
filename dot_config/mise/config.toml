@@ -3,7 +3,7 @@ node = 'lts'
 python = '3.13.2'
 rust = 'stable'
 go = 'latest'
-"go:github.com/mitranim/gow" = "latest"
+"go:github.com/mitranim/gow" = { version = "latest" }
 ruby = "3.3.5"
 #terraform = 'latest'
 #terraform-docs = 'latest'

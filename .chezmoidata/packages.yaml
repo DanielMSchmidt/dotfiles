@@ -33,9 +33,9 @@ packages:
         casks:
             - "1password-cli"
             - "caffeine"
-            - "cmake"
-            - "docker"
-            - "flux"
+            - "cmake-app"
+            - "docker-desktop"
+            - "flux-app"
             - "font-hack"
             - "font-hack-nerd-font"
             - "google-chrome@canary"
