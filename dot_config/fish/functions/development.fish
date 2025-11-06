@@ -18,6 +18,14 @@ function goTestFails -d "Runs all tests and finds fails"
     goTestAll | grep "FAIL"
 end
 
+function goTestSingle -d "Runs tests in a single file without caching" 
+    if test (count $argv) -ne 2
+        echo "Usage: goTestSingle <modulePath> <testCase>"
+        return 1
+    end
+    echo "Watching $argv[1] -> $argv[2]"; gow -c test -v -count=1 $argv[1] -run $argv[2]\$
+end
+
 function triggerwatch -d "Watches for a trigger and runs the given command when triggered"
     set -l triggerfile /tmp/fish_triggerwatch_trigger
     set -l cmd $argv

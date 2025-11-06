@@ -2,7 +2,6 @@ packages:
     universal:
         taps:
             - "1password/tap"
-            - "homebrew/bundle"
             - "git-duet/tap"
         brews:
             - "duti"
