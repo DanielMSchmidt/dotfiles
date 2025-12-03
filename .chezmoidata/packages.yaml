@@ -37,7 +37,7 @@ packages:
             - "flux-app"
             - "font-hack"
             - "font-hack-nerd-font"
-            - "google-chrome@canary"
+            - "google-chrome"
             - "ghostty"
             - "github@beta"
             - "imageoptim"
