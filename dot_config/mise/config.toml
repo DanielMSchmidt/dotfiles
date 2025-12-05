@@ -1,6 +1,6 @@
 [tools]
 node = 'lts'
-python = '3.13.2'
+python = '3.14.2'
 rust = 'stable'
 go = 'latest'
 "go:github.com/mitranim/gow" = { version = "latest" }
