@@ -4,7 +4,7 @@ python = '3.13.2'
 rust = 'stable'
 go = 'latest'
 "go:github.com/mitranim/gow" = { version = "latest" }
-ruby = "3.3.5"
+ruby = "4.0.0"
 #terraform = 'latest'
 #terraform-docs = 'latest'
 
