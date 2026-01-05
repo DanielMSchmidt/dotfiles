@@ -84,7 +84,7 @@ fi
 # Also inlined sub-script depending on a dependency
 
 # hash of the mise config file, used to determine if we need to rerun this script
-# mise/config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# mise/config.toml hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
 
 fish -c 'mise install -y'
 
