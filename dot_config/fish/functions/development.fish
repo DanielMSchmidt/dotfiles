@@ -23,7 +23,8 @@ function goTestSingle -d "Runs tests in a single file without caching"
         echo "Usage: goTestSingle <modulePath> <testCase>"
         return 1
     end
-    echo "Watching $argv[1] -> $argv[2]"; gow -c test -v -count=1 $argv[1] -run $argv[2]\$
+    echo "goTestSingle $argv[1] $argv[2]"
+    echo "Running gow -c test -v -count=1 $argv[1] -run $argv[2]\$"; gow -c test -v -count=1 $argv[1] -run $argv[2]\$
 end
 
 function triggerwatch -d "Watches for a trigger and runs the given command when triggered"
