@@ -50,7 +50,7 @@ packages:
             - "rectangle-pro"
             - "spotify"
             - "wezterm"
-            - "zed@preview"
+            - "zed"
         mas:
             - name: "Focus To-Do"
               id: "1258530160"
@@ -74,6 +74,7 @@ packages:
             - "delve"
             - "deskpad"
             - "hashicorp/internal/tfcdev"
+            - "hashicorp/internal/docker-credential-doormat"
             - "hashicorp/releng/bob"
             - "hashicorp/security/doormat-cli"
             - "hashicorp/security/tsccr-helper"
