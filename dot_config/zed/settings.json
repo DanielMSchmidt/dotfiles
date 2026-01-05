@@ -526,7 +526,7 @@
     // to both the horizontal and vertical delta values while scrolling. Fast scrolling
     // happens when a user holds the alt or option key while scrolling.
     "fast_scroll_sensitivity": 4.0,
-    "relative_line_numbers": false,
+    "relative_line_numbers": "disabled",
     // If 'search_wrap' is disabled, search result do not wrap around the end of the file.
     "search_wrap": true,
     // Search options to enable by default when opening new project and buffer searches.
@@ -989,7 +989,7 @@
         // Whether to open tabs in preview mode when selected from the file finder.
         "enable_preview_from_file_finder": false,
         // Whether a preview tab gets replaced when code navigation is used to navigate away from the tab.
-        "enable_preview_from_code_navigation": false
+        "enable_keep_preview_on_code_navigation": false
     },
     // Settings related to the file finder.
     "file_finder": {
@@ -1033,7 +1033,7 @@
         //   * `true`: Use all gitignored files
         //   * `false`: Use only the files Zed had indexed
         //   * `null`: Be smart and search for ignored when called from a gitignored worktree
-        "include_ignored": null
+        "include_ignored": "smart"
     },
     // Whether or not to remove any trailing whitespace from lines of a buffer
     // before saving it.
