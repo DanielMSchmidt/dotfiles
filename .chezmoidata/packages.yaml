@@ -83,7 +83,6 @@ packages:
             - "warrensbox/tap/tfswitch"
         casks:
             - "deskpad"
-            - "notion-calendar"
             - "postico"
             - "microsoft-teams"
         mas: []
@@ -94,5 +93,6 @@ packages:
         brews: []
         casks:
             - "notion"
+            - "notion-calendar"
         mas: []
         fisher: []
