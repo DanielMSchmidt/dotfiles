@@ -20,6 +20,7 @@
     cof = "!sh -c \"git fetch && git checkout $1\" -"
 	pickc = cherry-pick --continue
 	pick = cherry-pick
+	prnext = "!sh -c 'set -e; current=$(git rev-parse --abbrev-ref HEAD); branch=$(gh pr list --base \"$current\" --json headRefName --jq \".[0].headRefName\" 2>/dev/null || true); if [ -z \"$branch\" ]; then echo \"No PR found with base: $current\" >&2; exit 1; fi; echo \"Switching to branch: $branch\"; git checkout \"$branch\"' -"
 [user]
 	name = Daniel Schmidt
 	email = danielmschmidt92@gmail.com
