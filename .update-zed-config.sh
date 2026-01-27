@@ -53,12 +53,6 @@ if [ -d "$ACTIVE_ZED_CONFIG/themes" ] && [ "$(ls -A $ACTIVE_ZED_CONFIG/themes)" 
     echo "  ✓ Themes updated"
 fi
 
-# Copy custom prompts if any exist
-if [ -d "$ACTIVE_ZED_CONFIG/prompts" ] && [ "$(ls -A $ACTIVE_ZED_CONFIG/prompts)" ]; then
-    echo "Copying custom prompts..."
-    cp -r "$ACTIVE_ZED_CONFIG/prompts/"* "$CHEZMOI_ZED_CONFIG/prompts/" 2>/dev/null || true
-    echo "  ✓ Prompts updated"
-fi
 
 echo ""
 echo "✅ Zed configuration updated successfully!"
