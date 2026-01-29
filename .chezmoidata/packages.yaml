@@ -9,6 +9,7 @@ packages:
             - "ffmpeg"
             - "fish"
             - "fisher"
+            - "fzf"
             - "gh"
             - "git"
             - "git-absorb"
