@@ -61,3 +61,9 @@ end
 function dotgraph
     pbpaste | dot -T png -Gbgcolor=transparent | viu -
 end
+
+function nosleep -d "Prevents the computer from sleeping, even with lid closed (Ctrl+C to stop)"
+    echo "Preventing sleep (including with lid closed)... Press Ctrl+C to stop."
+    echo "Note: -s flag requires AC power to prevent sleep with lid closed"
+    caffeinate -i -s -u -d
+end
