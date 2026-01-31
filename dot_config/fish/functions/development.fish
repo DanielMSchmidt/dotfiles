@@ -11,7 +11,7 @@ function jiramd -d "Puts markdown link to jira in clipboard"
 end
 
 function goTestAll -d "Runs all tests in the current directory without caching"
-    go test -v -count=1 ./...
+    CHECKPOINT_DISABLE= go test -v -count=1 ./...
 end
 
 function goTestFails -d "Runs all tests and finds fails"
@@ -24,7 +24,7 @@ function goTestSingle -d "Runs tests in a single file without caching"
         return 1
     end
     echo "goTestSingle $argv[1] $argv[2]"
-    echo "Running gow -c test -v -count=1 $argv[1] -run $argv[2]\$"; gow -c test -v -count=1 $argv[1] -run $argv[2]\$
+    echo "Running gow -c test -v -count=1 $argv[1] -run $argv[2]\$"; CHECKPOINT_DISABLE= gow -c test -v -count=1 $argv[1] -run $argv[2]\$
 end
 
 function triggerwatch -d "Watches for a trigger and runs the given command when triggered"
