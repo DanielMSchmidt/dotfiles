@@ -110,8 +110,8 @@ function prchain -d "Lists all connected PRs in a chain (PRs stacked on each oth
     # Get all open PRs in the repo
     set -l all_prs (gh pr list --json number,title,url,baseRefName,headRefName --limit 200)
 
-    # Function to find PR by head branch (walking up the chain)
-    # Start by walking up from current PR's base
+    # Walk up the chain: find PRs where the head branch is the base of the current/next PR
+    # We only include a PR if its head branch is being used as a base by another PR in our chain
     set -l walk_branch $current_base
     set -l upstream_numbers
     set -l upstream_titles
@@ -120,15 +120,27 @@ function prchain -d "Lists all connected PRs in a chain (PRs stacked on each oth
     set -l upstream_bases
 
     while true
+        # Find a PR whose head branch matches walk_branch AND whose head is used as a base by another PR
+        # This ensures we only get PRs that are actually stacked
         set -l found_pr (echo $all_prs | jq -r --arg branch "$walk_branch" '.[] | select(.headRefName == $branch) | "\(.number)\t\(.title)\t\(.url)\t\(.headRefName)\t\(.baseRefName)"')
         if test -z "$found_pr"
             break
         end
+        
         set -l pr_num (echo $found_pr | cut -f1)
         set -l pr_title (echo $found_pr | cut -f2)
         set -l pr_url (echo $found_pr | cut -f3)
         set -l pr_head (echo $found_pr | cut -f4)
         set -l pr_base (echo $found_pr | cut -f5)
+
+        # Check if this PR's head is actually used as a base by another PR (i.e., it's part of a stack)
+        # The walk_branch is the base of the PR we came from, so if there's a PR with head=walk_branch,
+        # it means that PR is being stacked upon
+        set -l is_stacked_upon (echo $all_prs | jq -r --arg branch "$pr_head" '[.[] | select(.baseRefName == $branch)] | length')
+        if test "$is_stacked_upon" = "0"
+            # This PR's head is not used as a base by any other PR, so it's not part of a stack
+            break
+        end
 
         # Prepend to upstream arrays (we're walking backwards)
         set upstream_numbers $pr_num $upstream_numbers
