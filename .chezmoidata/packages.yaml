@@ -3,6 +3,7 @@ packages:
         taps:
             - "1password/tap"
             - "git-duet/tap"
+            - "danielmschmidt/homebrew-tap"
         brews:
             - "duti"
             - "editorconfig"
@@ -17,12 +18,14 @@ packages:
             - "git-duet/tap/git-duet"
             - "git-extras"
             - "git-lfs"
+            - "go-again"
             - "gpg"
             - "graphviz"
             - "imagemagick"
             - "jless"
             - "jq"
             - "mise"
+            - "pombar"
             - "ripgrep"
             - "rsync"
             - "tree"
