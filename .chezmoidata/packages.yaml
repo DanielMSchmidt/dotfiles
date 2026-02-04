@@ -25,7 +25,7 @@ packages:
             - "jless"
             - "jq"
             - "mise"
-            - "danielmschmidt/homebrew-tap/pombar"
+            - "danielmschmidt/homebrew-tap/pomobar"
             - "ripgrep"
             - "rsync"
             - "tree"
