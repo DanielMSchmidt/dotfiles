@@ -11,7 +11,7 @@ function jiramd -d "Puts markdown link to jira in clipboard"
 end
 
 function goTestAll -d "Runs all tests in the current directory without caching"
-    CHECKPOINT_DISABLE= go test -v -count=1 ./...
+    CHECKPOINT_DISABLE= go test -v -count=1 ./... | go-again remember
 end
 
 function goTestFails -d "Runs all tests and finds fails"
