@@ -198,3 +198,136 @@ function prchain -d "Lists all connected PRs in a chain (PRs stacked on each oth
         end
     end
 end
+
+function prRebasePushAll -d "Pull --rebase and force-push all open PRs; skip PRs where rebase fails and report them"
+    # Ensure we're in a clean git repository
+    if not git rev-parse --git-dir >/dev/null 2>&1
+        echo "Error: Not in a git repository"
+        return 1
+    end
+
+    if test -n (git status --porcelain)
+        echo "Error: Working tree is not clean. Please commit or stash changes before running this."
+        return 1
+    end
+
+    # Ensure gh CLI is available
+    if not command -q gh
+        echo "Error: GitHub CLI (gh) is not installed"
+        return 1
+    end
+
+    # Remember original branch to return to
+    set -l original_branch (git branch --show-current)
+
+    # Prepare list of open PRs
+    set -l all_prs_json (gh pr list --limit 200 --json number,headRefName 2>/dev/null)
+    if test $status -ne 0
+        echo "Error: Failed to list PRs with gh"
+        return 1
+    end
+
+    # Build an array of "number<TAB>branch"
+    set -l pr_lines (echo $all_prs_json | jq -r '.[] | "\(.number)\t\(.headRefName)"')
+
+    if test -z "$pr_lines"
+        echo "No open PRs found."
+        return 0
+    end
+
+    set -l failed_prs
+    set -l failed_reasons
+
+    for line in $pr_lines
+        set -l pr_num (echo $line | cut -f1)
+        set -l pr_branch (echo $line | cut -f2)
+
+        if test -z "$pr_branch" -o -z "$pr_num"
+            echo "Skipping malformed PR entry: $line"
+            continue
+        end
+
+        echo "----------------------------------------"
+        echo "Processing PR #$pr_num (branch: $pr_branch)"
+
+        # Checkout the PR locally (gh will set up remotes if needed)
+        gh pr checkout $pr_num >/dev/null 2>&1
+        if test $status -ne 0
+            echo "  Error: gh pr checkout failed for PR #$pr_num"
+            set -a failed_prs $pr_num
+            set -a failed_reasons "checkout-failed"
+            continue
+        end
+
+        # Ensure we are on the intended branch
+        set -l current_branch (git branch --show-current)
+        if test "$current_branch" != "$pr_branch"
+            # Some repos/gh versions may name the checked out branch differently; still proceed but warn
+            echo "  Warning: checked out branch is '$current_branch' (expected '$pr_branch')"
+        end
+
+        # Attempt to pull --rebase with autostash to minimize manual intervention
+        echo "  Pulling --rebase..."
+        git pull --rebase --autostash >/dev/null 2>&1
+        if test $status -ne 0
+            echo "  Rebase failed for PR #$pr_num. Aborting rebase and skipping push."
+            # Try to abort any in-progress rebase
+            git rebase --abort >/dev/null 2>&1
+            set -a failed_prs $pr_num
+            set -a failed_reasons "rebase-failed"
+            continue
+        end
+
+        # Determine upstream to push to
+        set -l upstream
+        git rev-parse --abbrev-ref --symbolic-full-name @{u} >/dev/null 2>&1
+        if test $status -eq 0
+            set upstream (git rev-parse --abbrev-ref --symbolic-full-name @{u})
+        else
+            # Fall back to origin/<branch>
+            set upstream "origin/$current_branch"
+            echo "  No upstream configured; defaulting push target to $upstream"
+        end
+
+        # Split upstream into remote and branch
+        set -l remote (echo $upstream | cut -d/ -f1)
+        set -l remote_branch (echo $upstream | cut -d/ -f2-)
+
+        if test -z "$remote" -o -z "$remote_branch"
+            echo "  Error: Could not determine remote/branch for push target. Skipping."
+            set -a failed_prs $pr_num
+            set -a failed_reasons "no-upstream"
+            continue
+        end
+
+        # Force-push with lease to avoid clobbering unexpected remote changes
+        echo "  Force-pushing to $remote/$remote_branch..."
+        git push --force-with-lease $remote HEAD:$remote_branch >/dev/null 2>&1
+        if test $status -ne 0
+            echo "  Error: Force-push failed for PR #$pr_num"
+            set -a failed_prs $pr_num
+            set -a failed_reasons "push-failed"
+            continue
+        end
+
+        echo "  Successfully rebased and force-pushed PR #$pr_num"
+    end
+
+    # Return to original branch if present
+    if test -n "$original_branch"
+        echo "Returning to original branch '$original_branch'..."
+        git checkout $original_branch >/dev/null 2>&1
+    end
+
+    echo "----------------------------------------"
+    if test (count $failed_prs) -gt 0
+        echo "The following PRs were skipped due to errors:"
+        for i in (seq (count $failed_prs))
+            echo "- PR #$failed_prs[$i]: $failed_reasons[$i]"
+        end
+        return 1
+    else
+        echo "All PRs processed successfully."
+        return 0
+    end
+end
