@@ -331,3 +331,116 @@ function prRebasePushAll -d "Pull --rebase and force-push all open PRs; skip PRs
         return 0
     end
 end
+
+function todos -d "Find all TODOs and FIXMEs in changed files with context (compares against PR base or main)"
+    # Check if we're in a git repository
+    if not git rev-parse --git-dir >/dev/null 2>&1
+        echo "Error: Not in a git repository"
+        return 1
+    end
+
+    # Determine the base branch to compare against
+    set -l base_branch
+
+    # Check if we're on a PR by trying to get PR info
+    if command -q gh
+        set -l pr_base (gh pr view --json baseRefName -q '.baseRefName' 2>/dev/null)
+        if test $status -eq 0 -a -n "$pr_base"
+            set base_branch $pr_base
+            echo "📌 On a PR, comparing against base branch: $base_branch"
+        end
+    end
+
+    # Fall back to main if not on a PR
+    if test -z "$base_branch"
+        # Check if main exists, otherwise try master
+        if git rev-parse --verify main >/dev/null 2>&1
+            set base_branch main
+        else if git rev-parse --verify master >/dev/null 2>&1
+            set base_branch master
+        else
+            echo "Error: Could not find main or master branch"
+            return 1
+        end
+        echo "📌 Not on a PR, comparing against: $base_branch"
+    end
+
+    # Fetch the base branch to ensure we have latest
+    git fetch origin $base_branch 2>/dev/null
+
+    # Get list of changed files (added, modified, renamed)
+    set -l changed_files (git diff --name-only --diff-filter=ACMR origin/$base_branch 2>/dev/null)
+    
+    if test $status -ne 0
+        # Try without origin/ prefix
+        set changed_files (git diff --name-only --diff-filter=ACMR $base_branch 2>/dev/null)
+    end
+
+    if test -z "$changed_files"
+        echo "No changed files found."
+        return 0
+    end
+
+    echo ""
+    echo "🔍 Searching for TODOs and FIXMEs in "(count $changed_files)" changed file(s)..."
+    echo ""
+
+    set -l found_todos 0
+
+    for file in $changed_files
+        # Skip if file doesn't exist (was deleted)
+        if not test -f $file
+            continue
+        end
+
+        # Find TODOs and FIXMEs in this file with line numbers
+        set -l todo_lines (grep -n -i -E "(TODO|FIXME)" $file 2>/dev/null)
+        
+        if test -z "$todo_lines"
+            continue
+        end
+
+        for todo_line in $todo_lines
+            set found_todos (math $found_todos + 1)
+            
+            # Extract line number
+            set -l line_num (echo $todo_line | cut -d: -f1)
+            
+            # Calculate context range (3 lines before and after)
+            set -l start_line (math "max(1, $line_num - 3)")
+            set -l end_line (math "$line_num + 3")
+            
+            # Get total lines in file to avoid going past end
+            set -l total_lines (wc -l < $file | tr -d ' ')
+            if test $end_line -gt $total_lines
+                set end_line $total_lines
+            end
+
+            # Print header with file path and line range
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "📄 $file#L$line_num"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            
+            # Print context with line numbers, highlighting the TODO line
+            set -l current_line $start_line
+            while test $current_line -le $end_line
+                set -l line_content (sed -n "$current_line"p $file)
+                if test $current_line -eq $line_num
+                    # Highlight the TODO line
+                    printf "\033[1;33m%4d │ %s\033[0m\n" $current_line "$line_content"
+                else
+                    printf "%4d │ %s\n" $current_line "$line_content"
+                end
+                set current_line (math $current_line + 1)
+            end
+            echo ""
+        end
+    end
+
+    if test $found_todos -eq 0
+        echo "✅ No TODOs or FIXMEs found in changed files."
+    else
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "📊 Found $found_todos TODO/FIXME(s) in changed files."
+    end
+end
