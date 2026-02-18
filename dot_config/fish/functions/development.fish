@@ -332,7 +332,7 @@ function prRebasePushAll -d "Pull --rebase and force-push all open PRs; skip PRs
     end
 end
 
-function todos -d "Find all TODOs and FIXMEs in changed files with context (compares against PR base or main)"
+function todos -d "Find TODOs and FIXMEs added in the PR/branch (only newly added lines)"
     # Check if we're in a git repository
     if not git rev-parse --git-dir >/dev/null 2>&1
         echo "Error: Not in a git repository"
@@ -368,79 +368,107 @@ function todos -d "Find all TODOs and FIXMEs in changed files with context (comp
     # Fetch the base branch to ensure we have latest
     git fetch origin $base_branch 2>/dev/null
 
-    # Get list of changed files (added, modified, renamed)
-    set -l changed_files (git diff --name-only --diff-filter=ACMR origin/$base_branch 2>/dev/null)
-    
-    if test $status -ne 0
-        # Try without origin/ prefix
-        set changed_files (git diff --name-only --diff-filter=ACMR $base_branch 2>/dev/null)
-    end
-
-    if test -z "$changed_files"
-        echo "No changed files found."
-        return 0
+    # Get the diff and find added lines containing TODO/FIXME
+    # Using git diff with line number info to track where TODOs were added
+    set -l diff_base origin/$base_branch
+    if not git rev-parse --verify $diff_base >/dev/null 2>&1
+        set diff_base $base_branch
     end
 
     echo ""
-    echo "🔍 Searching for TODOs and FIXMEs in "(count $changed_files)" changed file(s)..."
+    echo "🔍 Searching for TODOs and FIXMEs added in this branch..."
     echo ""
 
     set -l found_todos 0
+    set -l current_file ""
+    set -l current_line_num 0
 
-    for file in $changed_files
-        # Skip if file doesn't exist (was deleted)
-        if not test -f $file
+    # Parse the unified diff to find added TODO lines with their actual line numbers
+    # Using -U0 to get minimal context, then parsing the @@ headers for line numbers
+    set -l diff_output (git diff -U0 $diff_base -- 2>/dev/null)
+
+    for line in $diff_output
+        # Check for file header
+        if string match -q "diff --git*" -- $line
             continue
-        end
-
-        # Find TODOs and FIXMEs in this file with line numbers
-        set -l todo_lines (grep -n -i -E "(TODO|FIXME)" $file 2>/dev/null)
-        
-        if test -z "$todo_lines"
+        else if string match -q "+++ b/*" -- $line
+            # Extract filename from +++ b/path/to/file
+            set current_file (string replace "+++ b/" "" -- $line)
             continue
-        end
-
-        for todo_line in $todo_lines
-            set found_todos (math $found_todos + 1)
-            
-            # Extract line number
-            set -l line_num (echo $todo_line | cut -d: -f1)
-            
-            # Calculate context range (3 lines before and after)
-            set -l start_line (math "max(1, $line_num - 3)")
-            set -l end_line (math "$line_num + 3")
-            
-            # Get total lines in file to avoid going past end
-            set -l total_lines (wc -l < $file | tr -d ' ')
-            if test $end_line -gt $total_lines
-                set end_line $total_lines
+        else if string match -qr '@@.*\+([0-9]+)' -- $line
+            # Parse hunk header to get the starting line number in the new file
+            # Format: @@ -old_start,old_count +new_start,new_count @@
+            set -l hunk_info (string match -r '@@ -[0-9,]+ \+([0-9]+)' -- $line)
+            if test -n "$hunk_info[2]"
+                set current_line_num $hunk_info[2]
+            end
+            continue
+        else if string match -q "+*" -- $line
+            # This is an added line - check if it contains TODO/FIXME
+            # Skip the +++ header lines
+            if string match -q "++*" -- $line
+                continue
             end
 
-            # Print header with file path and line range
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            echo "📄 $file#L$line_num"
-            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            
-            # Print context with line numbers, highlighting the TODO line
-            set -l current_line $start_line
-            while test $current_line -le $end_line
-                set -l line_content (sed -n "$current_line"p $file)
-                if test $current_line -eq $line_num
-                    # Highlight the TODO line
-                    printf "\033[1;33m%4d │ %s\033[0m\n" $current_line "$line_content"
+            set -l line_content (string sub -s 2 -- $line)
+
+            if string match -qri "(TODO|FIXME)" -- $line_content
+                set found_todos (math $found_todos + 1)
+
+                # Check if file exists for context
+                if test -f $current_file
+                    # Calculate context range (3 lines before and after)
+                    set -l start_line (math "max(1, $current_line_num - 3)")
+                    set -l end_line (math "$current_line_num + 3")
+
+                    # Get total lines in file to avoid going past end
+                    set -l total_lines (wc -l < $current_file | tr -d ' ')
+                    if test $end_line -gt $total_lines
+                        set end_line $total_lines
+                    end
+
+                    # Print header with file path and line number
+                    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                    echo "📄 $current_file#L$current_line_num"
+                    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+                    # Print context with line numbers, highlighting the TODO line
+                    set -l ctx_line $start_line
+                    while test $ctx_line -le $end_line
+                        set -l ctx_content (sed -n "$ctx_line"p $current_file)
+                        if test $ctx_line -eq $current_line_num
+                            # Highlight the TODO line
+                            printf "\033[1;33m%4d │ %s\033[0m\n" $ctx_line "$ctx_content"
+                        else
+                            printf "%4d │ %s\n" $ctx_line "$ctx_content"
+                        end
+                        set ctx_line (math $ctx_line + 1)
+                    end
+                    echo ""
                 else
-                    printf "%4d │ %s\n" $current_line "$line_content"
+                    # File doesn't exist, just show the line from diff
+                    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                    echo "📄 $current_file#L$current_line_num"
+                    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                    printf "\033[1;33m%4d │ %s\033[0m\n" $current_line_num "$line_content"
+                    echo ""
                 end
-                set current_line (math $current_line + 1)
             end
-            echo ""
+
+            # Increment line number for each added line
+            set current_line_num (math $current_line_num + 1)
+        else if not string match -q -- "-*" $line
+            # Context line (no + or -) - increment line number
+            # But we're using -U0 so there shouldn't be context lines
+            continue
         end
+        # Removed lines (starting with -) don't affect new file line numbers
     end
 
     if test $found_todos -eq 0
-        echo "✅ No TODOs or FIXMEs found in changed files."
+        echo "✅ No TODOs or FIXMEs added in this branch."
     else
         echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-        echo "📊 Found $found_todos TODO/FIXME(s) in changed files."
+        echo "📊 Found $found_todos TODO/FIXME(s) added in this branch."
     end
 end
