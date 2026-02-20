@@ -472,3 +472,27 @@ function todos -d "Find TODOs and FIXMEs added in the PR/branch (only newly adde
         echo "📊 Found $found_todos TODO/FIXME(s) added in this branch."
     end
 end
+
+
+function zedl -d "My local zed fork" 
+    set -l zed_bin /Users/dschmidt/fun/zed/target/release/zed
+    if not test -x $zed_bin
+        echo "Error: zed binary not found or not executable at $zed_bin"
+        echo "Run 'cargo build --release' in your zed fork (/Users/dschmidt/fun/zed) to build it first."
+        return 1
+    end
+    
+    # Use provided path argument (or arguments) if given
+    set -l zed_args
+    if test (count $argv) -gt 0
+        set -a zed_args $argv
+    end
+    
+    if test (count $zed_args) -gt 0
+        echo "Starting zed in background with args: $zed_args"
+        nohup $zed_bin $zed_args >/dev/null 2>&1 &
+    else
+        echo "Starting zed in background"
+        nohup $zed_bin >/dev/null 2>&1 &
+    end
+end
