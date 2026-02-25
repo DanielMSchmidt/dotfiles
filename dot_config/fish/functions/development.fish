@@ -68,6 +68,93 @@ function nosleep -d "Prevents the computer from sleeping, even with lid closed (
     caffeinate -i -s -u -d
 end
 
+function run_per_commit -d "Runs a command for each commit in the current branch (vs main)"
+    if test (count $argv) -lt 1
+        echo "Usage: run_per_commit <command...>"
+        echo "Example: run_per_commit go test ./..."
+        return 1
+    end
+
+    set -l cmd $argv
+    set -l original_branch (git branch --show-current)
+    if test -z "$original_branch"
+        set original_branch (git rev-parse HEAD)
+    end
+
+    # Determine base branch
+    set -l base main
+    if not git rev-parse --verify main &>/dev/null
+        if git rev-parse --verify master &>/dev/null
+            set base master
+        else
+            echo "Error: could not find 'main' or 'master' branch"
+            return 1
+        end
+    end
+
+    # Get commits oldest-first that are in this branch but not in base
+    set -l commits (git rev-list --reverse $base..HEAD)
+    if test (count $commits) -eq 0
+        echo "No commits found between $base and HEAD."
+        return 0
+    end
+
+    set -l total (count $commits)
+    set -l failed_commits
+    set -l passed 0
+    set -l failed 0
+
+    echo "Running '$cmd' for $total commit(s) on branch '$original_branch'..."
+    echo ""
+
+    for i in (seq 1 $total)
+        set -l sha $commits[$i]
+        set -l short_sha (string sub -l 8 $sha)
+        set -l subject (git log --format='%s' -n1 $sha)
+
+        echo "────────────────────────────────────────────────────────"
+        echo "[$i/$total] $short_sha — $subject"
+        echo "────────────────────────────────────────────────────────"
+
+        git checkout --quiet $sha
+        if test $status -ne 0
+            echo "⚠ Failed to checkout $short_sha, skipping."
+            set failed (math $failed + 1)
+            set -a failed_commits "$short_sha $subject"
+            continue
+        end
+
+        mise x -- $cmd
+        if test $status -ne 0
+            echo ""
+            echo "✗ FAILED at $short_sha — $subject"
+            set failed (math $failed + 1)
+            set -a failed_commits "$short_sha $subject"
+        else
+            echo ""
+            echo "✓ PASSED at $short_sha"
+            set passed (math $passed + 1)
+        end
+        echo ""
+    end
+
+    # Restore original branch
+    git checkout --quiet $original_branch
+
+    echo "════════════════════════════════════════════════════════"
+    echo "Results: $passed passed, $failed failed out of $total commit(s)"
+    echo "════════════════════════════════════════════════════════"
+
+    if test $failed -gt 0
+        echo ""
+        echo "Failed commits:"
+        for entry in $failed_commits
+            echo "  ✗ $entry"
+        end
+        return 1
+    end
+end
+
 function prchain -d "Lists all connected PRs in a chain (PRs stacked on each other)"
     # Check if we're in a git repository
     if not git rev-parse --git-dir >/dev/null 2>&1
@@ -496,3 +583,4 @@ function zedl -d "My local zed fork"
         nohup $zed_bin >/dev/null 2>&1 &
     end
 end
+
