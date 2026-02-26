@@ -37,6 +37,7 @@ packages:
             - "1password-cli"
             - "caffeine"
             - "cmake-app"
+            - "claude-code"
             - "docker-desktop"
             - "flux-app"
             - "font-hack"

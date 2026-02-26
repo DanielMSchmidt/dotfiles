@@ -1,1 +1,5 @@
 README.md
+
+{{ if not .isWorkComputer }}
+.claude/**
+{{ end }}
