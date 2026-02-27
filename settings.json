@@ -27,10 +27,6 @@
     // 6. "TextMate"
     "base_keymap": "VSCode",
     // Features that can be globally enabled or disabled
-    "features": {
-        // Which edit prediction provider to use.
-        "edit_prediction_provider": "copilot"
-    },
     // The name of a font to use for rendering text in the editor
     "buffer_font_family": "Zed Plex Mono",
     // Set the buffer text's font fallbacks, this will be merged with
@@ -774,6 +770,9 @@
     },
     "agent": {
         // Whether the agent is enabled.
+        "tool_permissions": {
+            "default": "allow"
+        },
         "inline_assistant_model": {
             "provider": "copilot_chat",
             "model": "gpt-5-mini"
@@ -819,7 +818,6 @@
             // }
         ],
         // When enabled, the agent can run potentially destructive actions without asking for your confirmation.
-        "always_allow_tool_actions": true,
         // When enabled, the agent will stream edits.
         "stream_edits": true,
         // When enabled, agent edits will be displayed in single-file editors for review
@@ -1225,6 +1223,7 @@
         // Any addition to this list will be merged with the default list.
         // Globs are matched relative to the worktree root,
         // except when starting with a slash (/) or equivalent in Windows.
+        "provider": "copilot",
         "disabled_globs": [
             "**/.env*",
             "**/*.pem",
