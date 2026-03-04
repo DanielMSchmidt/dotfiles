@@ -1,5 +1,5 @@
 {
-    "$schema": "https://www.schemastore.org/claude-code-settings.json",
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
     "permissions": {
         "allow": [
             "Bash(git:*)",
@@ -27,7 +27,14 @@
     "awsAuthRefresh": "doormat aws cred-file add-profile -a aws_dschmidt_test -n sandbox",
     "env": {
         "CLAUDE_CODE_USE_BEDROCK": "1",
-        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
     },
-    "model": "us.anthropic.claude-sonnet-4-6"
+    "model": "us.anthropic.claude-opus-4-6-v1",
+    "enabledPlugins": {
+        "superpowers@claude-plugins-official": true,
+        "rust-analyzer-lsp@claude-plugins-official": true,
+        "gopls-lsp@claude-plugins-official": true
+    },
+    "skipDangerousModePermissionPrompt": true,
+    "effortLevel": "medium"
 }

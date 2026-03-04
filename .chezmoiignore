@@ -1,5 +1,6 @@
 README.md
 settings.json
+claude-configs
 
 {{ if not .isWorkComputer }}
 .claude/**
