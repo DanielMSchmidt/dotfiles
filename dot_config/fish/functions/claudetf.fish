@@ -38,7 +38,7 @@ function claudetf -d "Start Claude Code session for terraform/terraform-private 
     set -l exclude_file $git_dir/info/exclude
     mkdir -p $git_dir/info
 
-    for entry in CLAUDE.md .claude
+    for entry in CLAUDE.md .claude .claude/worktrees/ docs/plans/
         if not grep -qxF $entry $exclude_file 2>/dev/null
             echo $entry >>$exclude_file
         end
@@ -52,7 +52,7 @@ function claudetf -d "Start Claude Code session for terraform/terraform-private 
     test -L .claude; and rm -f .claude
 
     # Cleanup: remove entries from git exclude
-    for entry in CLAUDE.md .claude
+    for entry in CLAUDE.md .claude .claude/worktrees/ docs/plans/
         if test -f $exclude_file
             sed -i '' "\|^$entry\$|d" $exclude_file
         end
