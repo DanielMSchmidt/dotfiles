@@ -5,9 +5,15 @@ set -x TERRAFORM_CREDENTIALS_FILE $HOME/.terraform.d/credentials.tfrc.json
 
 set -x _TFC_AGENT_STACK_COMPONENTS_ENABLED 1
 
+set -x ATLAS_ORG_NAME hashicorp
+
 function atlas_hostname -d "Outputs the atlas host name"
-    set CURRENT_DIR (pwd)
-    echo (cd "$ATLAS_PATH" && eval "$(tfcdev stack env --export 2> /dev/null)"  && echo "$TFE_FQDN" && cd $CURRENT_DIR)
+    if set -q ATLAS_HOSTNAME
+        echo $ATLAS_HOSTNAME
+    else
+        set CURRENT_DIR (pwd)
+        echo (cd "$ATLAS_PATH" && eval "$(tfcdev stack env --export 2> /dev/null)"  && echo "$TFE_FQDN" && cd $CURRENT_DIR)
+    end
 end
 
 function atlas_token -d "Get auth token to authenticate against atlas"
@@ -31,7 +37,7 @@ function agent_token -d "Gets agent token from atlas"
             --header "Authorization: Bearer $TOKEN" \
             --header "Content-Type: application/vnd.api+json" \
             --request GET \
-            https://$HOST/api/v2/organizations/hashicorp/agent-pools  2> /dev/null \
+            https://$HOST/api/v2/organizations/$ATLAS_ORG_NAME/agent-pools  2> /dev/null \
         | jq -r '.data[0].id')
 
     echo (curl \

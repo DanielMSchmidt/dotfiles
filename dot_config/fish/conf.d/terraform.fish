@@ -6,13 +6,23 @@ set -x TERRAFORM_PATH $HOME/work/hashicorp/terraform
 
 ## Normal Builds
 # Execute local terraform binary
-alias tfl="$TERRAFORM_PATH/bin/terraform"
+function tfl -d "Run local terraform binary"
+    echo "Using terraform binary at $TERRAFORM_PATH/bin/terraform"
+    $TERRAFORM_PATH/bin/terraform $argv
+end
 # Build terraform binary
-alias tfb="fish -c 'cd $TERRAFORM_PATH && mise x -- go build -ldflags=\"-X 'main.experimentsAllowed=yes'\" -v -o bin/'"
+function tfb -d "Build local terraform binary"
+    echo "Building terraform binary at $TERRAFORM_PATH/bin/terraform"
+    fish -c "cd $TERRAFORM_PATH && mise x -- go build -ldflags=\"-X 'main.experimentsAllowed=yes'\" -v -o bin/"
+end
 # Build terraform binary for linux
-alias tfbl="fish -c 'cd $TERRAFORM_PATH && GOOS=linux GOARCH=amd64 mise x -- go build -ldflags=\"-X 'main.experimentsAllowed=yes'\" -v -o bin/'"
+function tfbl -d "Build local terraform binary for linux"
+    fish -c "cd $TERRAFORM_PATH && GOOS=linux GOARCH=amd64 mise x -- go build -ldflags=\"-X 'main.experimentsAllowed=yes'\" -v -o bin/"
+end
 # Watch terraform binary build
-alias tfw="fish -c 'cd $TERRAFORM_PATH && gow -v -c build -v -ldflags=\"-X 'main.experimentsAllowed=yes'\" -o bin/'"
+function tfw -d "Watch local terraform binary build"
+    fish -c "cd $TERRAFORM_PATH && gow -v -c build -v -ldflags=\"-X 'main.experimentsAllowed=yes'\" -o bin/"
+end
 
 ## Private Builds
 # Execute local terraform binary
