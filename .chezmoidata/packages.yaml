@@ -95,7 +95,8 @@ packages:
 
     private:
         taps: []
-        brews: []
+        brews: 
+            - "cloudflared"
         casks:
             - "notion"
             - "notion-calendar"
