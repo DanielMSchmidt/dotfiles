@@ -1,7 +1,8 @@
 README.md
 settings.json
 claude-configs
-
-{{ if not .isWorkComputer }}
 .claude/**
+
+{{ if ne .chezmoi.os "darwin" }}
+dot_config/fish/conf.d/1password.fish
 {{ end }}

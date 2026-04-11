@@ -4,26 +4,34 @@ set -x LC_ALL en_US.UTF-8
 set -x LANG en_US.UTF-8
 
 set -x PATH /usr/local/sbin $PATH
+{{ if eq .chezmoi.os "darwin" -}}
 set -x PATH /opt/homebrew/bin/ $PATH
 set -x PATH /Users/dschmidt/bin $PATH
+{{ end -}}
 set -x EDITOR /usr/bin/vim
 
-ssh-add -q ~/.ssh/id_rsa
+ssh-add -q ~/.ssh/id_rsa 2>/dev/null; or true
 
 # Load oh-my-fish configuration.
 contains /usr/local/bin $fish_user_paths; or set -Ua fish_user_paths /usr/local/bin
+{{ if eq .chezmoi.os "darwin" -}}
 contains /usr/local/opt/ruby/bin $fish_user_paths; or set -Ua fish_user_paths /usr/local/opt/ruby/bin
 contains /usr/local/opt/terraform@0.12/bin $fish_user_paths; or set -Ua fish_user_paths /usr/local/opt/terraform@0.12/bin
+{{ end -}}
 
 # Dancing helper
-source $HOME/.config/fish/functions/atlas.fish
-source $HOME/.config/fish/functions/dancing.fish
-source $HOME/.config/fish/functions/development.fish
+source $HOME/.config/fish/functions/atlas.fish 2>/dev/null; or true
+source $HOME/.config/fish/functions/dancing.fish 2>/dev/null; or true
+source $HOME/.config/fish/functions/development.fish 2>/dev/null; or true
 
+{{ if eq .chezmoi.os "darwin" -}}
 set -g fish_user_paths /usr/local/opt/openjdk/bin $fish_user_paths
 fish_add_path /opt/homebrew/sbin
+{{ end -}}
 
-op completion fish | source
+if type -q op
+    op completion fish | source
+end
 
 # Created by `pipx` on 2024-06-17 08:22:05
 set PATH $PATH $HOME/.local/bin

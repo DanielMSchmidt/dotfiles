@@ -1,0 +1,7 @@
+{{ if eq .chezmoi.os "darwin" -}}
+/opt/homebrew/bin/mise activate fish | source
+{{ else -}}
+if type -q mise
+    mise activate fish | source
+end
+{{ end -}}

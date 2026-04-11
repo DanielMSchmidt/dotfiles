@@ -1,5 +1,5 @@
-{{ if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
+{{ if eq .chezmoi.os "darwin" -}}
 
 brew bundle --file=/dev/stdin <<EOF
 {{ range .packages.universal.taps -}}
@@ -20,6 +20,7 @@ fish -c 'fisher install {{ . | quote }}'
 {{ end -}}
 {{ end -}}
 
+{{ if eq .chezmoi.os "darwin" -}}
 {{ if .isWorkComputer -}}
 
 HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}' brew bundle --no-lock --file=/dev/stdin <<EOF
@@ -59,7 +60,9 @@ EOF
 fish -c 'fisher install {{ . | quote }}'
 {{ end -}}
 {{ end -}}
+{{ end -}}
 
+{{ if eq .chezmoi.os "darwin" -}}
 # Unfortunately I did not yet find a way to order scripts so I'm inlining this. Should all be pretty much a no-op anyways.
 # We use the version of the secret to determine if we need to update the secret
 # This needs to be kept in sync with the .gitconfig file
@@ -87,6 +90,7 @@ fi
 # mise/config.toml hash: {{ include "dot_config/mise/config.toml.tmpl" | sha256sum }}
 
 fish -c 'mise install -y'
+{{ end -}}
 
 fish -c "tide configure --auto --style=Rainbow --prompt_colors='True color' --show_time='24-hour format' --rainbow_prompt_separators=Angled --powerline_prompt_heads=Sharp --powerline_prompt_tails=Flat --powerline_prompt_style='Two lines, character and frame' --prompt_connection=Disconnected --powerline_right_prompt_frame=No --prompt_connection_andor_frame_color=Light --prompt_spacing=Sparse --icons='Few icons' --transient=No"
 
