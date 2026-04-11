@@ -54,7 +54,6 @@ packages:
             - "raycast"
             - "rectangle-pro"
             - "spotify"
-            - "wispr-flow"
             - "zed"
         mas:
             - name: "Focus To-Do"
