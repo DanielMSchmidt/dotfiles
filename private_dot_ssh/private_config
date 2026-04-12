@@ -1,2 +1,9 @@
+Host nuc
+       HostName 192.168.178.83
+       User admin
+       IdentityFile ~/.ssh/id_rsa
+       IdentityAgent none
+       StrictHostKeyChecking accept-new
+
 Host *
 	IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
