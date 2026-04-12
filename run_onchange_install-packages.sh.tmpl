@@ -1,7 +1,15 @@
 #!/bin/bash
 {{ if eq .chezmoi.os "darwin" -}}
 
-brew bundle --file=/dev/stdin <<EOF
+# Environment state hashes — changes here trigger run_onchange re-execution
+# brew leaves: {{ output "brew" "leaves" | sha256sum }}
+# brew casks: {{ output "brew" "list" "--cask" "-1" | sha256sum }}
+# brew taps: {{ output "brew" "tap" | sha256sum }}
+# fisher plugins: {{ output "fish" "-c" "fisher list 2>/dev/null" | sha256sum }}
+
+# Generate combined Brewfile in a temp file
+brewfile=$(mktemp)
+cat > "$brewfile" <<BREWEOF
 {{ range .packages.universal.taps -}}
 tap {{ . | quote | replace " " "\", \"" }}
 {{ end -}}
@@ -14,16 +22,7 @@ cask {{ . | quote }}
 {{ range .packages.universal.mas -}}
 mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
-EOF
-{{ range .packages.universal.fisher -}}
-fish -c 'fisher install {{ . | quote }}'
-{{ end -}}
-{{ end -}}
-
-{{ if eq .chezmoi.os "darwin" -}}
 {{ if .isWorkComputer -}}
-
-HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}' brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range .packages.work.taps -}}
 tap {{ . | quote | replace " " "\", \"" }}
 {{ end -}}
@@ -36,13 +35,7 @@ cask {{ . | quote }}
 {{ range .packages.work.mas -}}
 mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
-EOF
-{{ range .packages.work.fisher -}}
-fish -c 'fisher install {{ . | quote }}'
-{{ end -}}
-
 {{ else -}}
-brew bundle --no-lock --file=/dev/stdin <<EOF
 {{ range .packages.private.taps -}}
 tap {{ . | quote | replace " " "\", \"" }}
 {{ end -}}
@@ -55,11 +48,61 @@ cask {{ . | quote }}
 {{ range .packages.private.mas -}}
 mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
-EOF
+{{ end -}}
+BREWEOF
+
+# Install packages
+{{ if .isWorkComputer -}}
+export HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}'
+{{ end -}}
+brew bundle --file="$brewfile"
+
+# Warn about and remove undeclared packages
+undeclared=$(brew bundle cleanup --file="$brewfile" 2>/dev/null)
+if [[ -n "$undeclared" ]]; then
+    echo ""
+    echo "WARNING: Removing packages not declared in packages.yaml:"
+    echo "$undeclared"
+    brew bundle cleanup --force --file="$brewfile"
+    brew autoremove
+fi
+
+{{ if .isWorkComputer -}}
+unset HOMEBREW_GITHUB_API_TOKEN
+{{ end -}}
+rm -f "$brewfile"
+
+# Install Fisher plugins
+{{ range .packages.universal.fisher -}}
+fish -c 'fisher install {{ . | quote }}'
+{{ end -}}
+{{ if .isWorkComputer -}}
+{{ range .packages.work.fisher -}}
+fish -c 'fisher install {{ . | quote }}'
+{{ end -}}
+{{ else -}}
 {{ range .packages.private.fisher -}}
 fish -c 'fisher install {{ . | quote }}'
 {{ end -}}
 {{ end -}}
+
+# Remove undeclared Fisher plugins
+fish -c '
+set expected {{ range .packages.universal.fisher }}{{ . | quote }} {{ end }}{{ if .isWorkComputer }}{{ range .packages.work.fisher }}{{ . | quote }} {{ end }}{{ else }}{{ range .packages.private.fisher }}{{ . | quote }} {{ end }}{{ end }}
+if test (count $expected) -gt 0
+    set expected_lower
+    for e in $expected
+        set -a expected_lower (string lower $e)
+    end
+    for plugin in (fisher list)
+        if not contains -- (string lower $plugin) $expected_lower
+            echo "WARNING: Removing undeclared Fisher plugin: $plugin"
+            fisher remove $plugin
+        end
+    end
+end
+'
+
 {{ end -}}
 
 {{ if eq .chezmoi.os "darwin" -}}
@@ -92,6 +135,6 @@ fi
 fish -c 'mise install -y'
 {{ end -}}
 
-fish -c "tide configure --auto --style=Rainbow --prompt_colors='True color' --show_time='24-hour format' --rainbow_prompt_separators=Angled --powerline_prompt_heads=Sharp --powerline_prompt_tails=Flat --powerline_prompt_style='Two lines, character and frame' --prompt_connection=Disconnected --powerline_right_prompt_frame=No --prompt_connection_andor_frame_color=Light --prompt_spacing=Sparse --icons='Few icons' --transient=No"
+fish -c "tide configure --auto --style=Rainbow --prompt_colors='True color' --show_time='24-hour format' --rainbow_prompt_separators=Angled --powerline_prompt_heads=Sharp --powerline_prompt_tails=Flat --powerline_prompt_style='Two lines, character and frame' --prompt_connection=Disconnected --powerline_right_prompt_frame=No --prompt_connection_andor_frame_color=Light --prompt_spacing=Sparse --icons='Few icons' --transient=No" > /dev/null 2>&1
 
 # fish -c 'sudo xcodebuild -license'
