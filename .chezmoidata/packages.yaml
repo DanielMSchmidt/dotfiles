@@ -53,6 +53,10 @@ packages:
             - "typescript-language-server"
             - "typst"
             - "vhs"
+            - "ansible"
+            - "gnupg"
+            - "terraform-ls"
+            - "watch"
         casks:
             - "1password-cli"
             - "caffeine"
@@ -79,6 +83,9 @@ packages:
             - "cmake"
             - "flux"
             - "google-chrome@canary"
+            - "handy"
+            - "switchresx"
+            - "tfswitch"
         mas:
             - name: "Focus To-Do"
               id: "1258530160"
@@ -92,6 +99,10 @@ packages:
               id: "302584613"
             - name: "MacDroid"
               id: "1476545828"
+            - name: "iMovie"
+              id: "408981434"
+            - name: "Okta Verify"
+              id: "490179405"
         fisher:
             - "IlanCosman/tide@v6"
             - "jethrokuan/z"
