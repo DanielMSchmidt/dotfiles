@@ -1631,7 +1631,7 @@
                 "allowed": true
             }
         },
-        "HEEX": {
+        "HEEx": {
             "language_servers": [
                 "elixir-ls",
                 "!next-ls",
