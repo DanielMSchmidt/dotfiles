@@ -1,7 +1,0 @@
-set -x GOPATH $HOME/go
-{{ if eq .chezmoi.os "darwin" -}}
-set -x GOROOT /opt/homebrew/opt/go/libexec
-{{ else -}}
-set -x GOROOT /usr/local/go
-{{ end -}}
-set -x PATH $PATH $GOPATH/bin $GOROOT/bin

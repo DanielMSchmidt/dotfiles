@@ -90,12 +90,12 @@ packages:
             - "hashicorp/releng"
             - "hashicorp/security"
             - "hashicorp/tap"
+            - "warrensbox/tap"
         brews:
             - "ansible"
             - "awscli"
             - "bufbuild/buf/buf"
             - "delve"
-            - "deskpad"
             - "gnupg"
             - "hashicorp/internal/docker-credential-doormat"
             - "hashicorp/internal/tfcdev"
@@ -107,6 +107,7 @@ packages:
             - "warrensbox/tap/tfswitch"
             - "watch"
         casks:
+            - "copilot-cli"
             - "deskpad"
             - "microsoft-teams"
             - "postico"
