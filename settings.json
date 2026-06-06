@@ -5,6 +5,8 @@
     // - "system": Use the theme that corresponds to the system's appearance
     // - "light": Use the theme indicated by the "light" field
     // - "dark": Use the theme indicated by the "dark" field
+    "diff_view_style": "split",
+    "cli_default_open_behavior": "existing_window",
     "audio": {
         "experimental.auto_microphone_volume": true,
         "experimental.rodio_audio": true
@@ -188,7 +190,7 @@
     //    "on_typing"
     // 3. Hide on both typing and cursor movement:
     //    "on_typing_and_movement"
-    "hide_mouse": "on_typing_and_movement",
+    "hide_mouse": "on_typing_and_action",
     // Determines how snippets are sorted relative to other completion items.
     //
     // 1. Place snippets at the top of the completion list:
@@ -361,7 +363,6 @@
     // Titlebar related settings
     "title_bar": {
         // Whether to show the branch icon beside branch switcher in the titlebar.
-        "show_branch_icon": false,
         // Whether to show the branch name button in the titlebar.
         "show_branch_name": true,
         // Whether to show the project host and name in the titlebar.
@@ -830,6 +831,7 @@
                 "name": "Write",
                 "enable_all_context_servers": true,
                 "tools": {
+                    "search_web": true,
                     "copy_path": true,
                     "create_directory": true,
                     "delete_path": true,
@@ -844,8 +846,7 @@
                     "read_file": true,
                     "grep": true,
                     "terminal": true,
-                    "thinking": true,
-                    "web_search": true
+                    "thinking": true
                 }
             },
             "ask": {
@@ -853,6 +854,7 @@
                 // We don't know which of the context server tools are safe for the "Ask" profile, so we don't enable them by default.
                 // "enable_all_context_servers": true,
                 "tools": {
+                    "search_web": true,
                     "contents": true,
                     "diagnostics": true,
                     "fetch": true,
@@ -863,8 +865,7 @@
                     "read_file": true,
                     "open": true,
                     "grep": true,
-                    "thinking": true,
-                    "web_search": true
+                    "thinking": true
                 }
             },
             "minimal": {
@@ -883,7 +884,7 @@
         // Whether to play a sound when the agent has either completed
         // its response, or needs user input.
         // Default: false
-        "play_sound_when_agent_done": false,
+        "play_sound_when_agent_done": "never",
         /// Whether to have edit cards in the agent panel expanded, showing a preview of the full diff.
         ///
         /// Default: true
@@ -1985,7 +1986,11 @@
     // Configures context servers for use by the agent.
     "context_servers": {},
     // Configures agent servers available in the agent panel.
-    "agent_servers": {},
+    "agent_servers": {
+        "github-copilot-cli": {
+            "type": "registry"
+        }
+    },
     "debugger": {
         "stepping_granularity": "line",
         "save_breakpoints": true,

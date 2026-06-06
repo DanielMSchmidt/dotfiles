@@ -86,12 +86,14 @@ packages:
             - "jethrokuan/z"
     work:
         taps:
+            - "anomalyco/tap"
             - "hashicorp/internal"
             - "hashicorp/releng"
             - "hashicorp/security"
             - "hashicorp/tap"
             - "warrensbox/tap"
         brews:
+            - "anomalyco/tap/opencode"
             - "ansible"
             - "awscli"
             - "bufbuild/buf/buf"
@@ -112,7 +114,7 @@ packages:
             - "microsoft-teams"
             - "postico"
             - "switchresx"
-        mas: 
+        mas:
             - name: "iMovie"
               id: "408981434"
             - name: "Okta Verify"
@@ -120,12 +122,12 @@ packages:
         fisher: []
 
     private:
-        taps: 
+        taps:
             - "anomalyco/tap"
             - "arthur-ficial/tap"
             - "stripe/stripe-cli"
             - "yakitrak/yakitrak"
-        brews: 
+        brews:
             - "arthur-ficial/tap/apfel"
             - "bash"
             - "bat"
@@ -138,7 +140,7 @@ packages:
             - "vhs"
         casks:
             - "notion"
-        mas: 
+        mas:
             - name: "Kindle"
               id: "302584613"
             - name: "MacDroid"
