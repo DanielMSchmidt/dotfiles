@@ -76,36 +76,54 @@ function agent_build_docker -d "Builds the agent docker container"
     cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/internal/development.terraformCliPath=/terraform/bin/terraform'" make docker && cd $CURRENT_DIR
 end
 
-function agent_run_docker -d "Runs the agent in docker"
-    if docker ps --filter "name=jaeger" --format "{{.Names}}" | grep -w "jaeger"
-        docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
-            TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
-            -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
-            -e TFC_AGENT_AUTO_UPDATE=disabled \
-            -e TFC_AGENT_LOG_LEVEL=debug \
-            -e TFC_AGENT_NAME="stack-agent-1" \
-            -e TFC_ADDRESS="https://$(atlas_hostname)" \
-            -e TFC_AGENT_TOKEN="$(agent_token)" \
-            -e TFC_AGENT_OTLP_ADDRESS="jaeger:4317" \
-            --link jaeger \
-            -v $HOME/work/hashicorp/terraform:/terraform \
-            hashicorp/tfc-agent:latest
-    else
-        docker run  -e TFC_AGENT_LOG_LEVEL=trace -e \
-            TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
-            -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
-            -e TFC_AGENT_AUTO_UPDATE=disabled \
-            -e TFC_AGENT_LOG_LEVEL=debug \
-            -e TFC_AGENT_NAME="stack-agent-1" \
-            -e TFC_ADDRESS="https://$(atlas_hostname)" \
-            -e TFC_AGENT_TOKEN="$(agent_token)" \
-            -v $HOME/work/hashicorp/terraform:/terraform \
-            hashicorp/tfc-agent:latest
-    end
+# Port Jaeger exposes for OTLP/gRPC on the host (see jaeger_start).
+set -x JAEGER_OTLP_PORT 4317
+
+function jaeger_reachable -d "Returns success if Jaeger's OTLP port is reachable on the host"
+    nc -z localhost $JAEGER_OTLP_PORT 2>/dev/null
 end
 
-function agent_build_and_run_docker -d "Builds and runs the agent"
+function _agent_run_docker -d "Internal: runs the tfc-agent container; pass an OTLP address as \$argv[1] to enable tracing"
+    set -l otel_args
+    if test (count $argv) -gt 0; and test -n "$argv[1]"
+        # Reach the host-published Jaeger port from inside the container.
+        set otel_args \
+            -e TFC_AGENT_OTLP_ADDRESS="$argv[1]" \
+            --add-host host.docker.internal:host-gateway
+    end
+
+    docker run --rm \
+        -e TFC_AGENT_ACCEPT=plan,apply,stack_prepare,stack_plan,stack_apply \
+        -e _TFC_AGENT_STACK_COMPONENTS_ENABLED=1 \
+        -e TFC_AGENT_AUTO_UPDATE=disabled \
+        -e TFC_AGENT_LOG_LEVEL=trace \
+        -e TFC_AGENT_NAME="stack-agent-1" \
+        -e TFC_ADDRESS="https://$(atlas_hostname)" \
+        -e TFC_AGENT_TOKEN="$(agent_token)" \
+        $otel_args \
+        -v $HOME/work/hashicorp/terraform:/terraform \
+        hashicorp/tfc-agent:latest
+end
+
+function agent_run_docker -d "Runs the agent in docker (no tracing)"
+    _agent_run_docker
+end
+
+function agent_run_docker_otel -d "Runs the agent in docker with Jaeger OTel tracing"
+    if not jaeger_reachable
+        echo "ERROR: Jaeger is not reachable on localhost:$JAEGER_OTLP_PORT." >&2
+        echo "Start it first with 'jaeger_start' (UI: 'jaeger_open'), then re-run this command." >&2
+        return 1
+    end
+    _agent_run_docker "host.docker.internal:$JAEGER_OTLP_PORT"
+end
+
+function agent_build_and_run_docker -d "Builds and runs the agent (no tracing)"
     agent_build_docker && agent_run_docker
+end
+
+function agent_build_and_run_docker_otel -d "Builds and runs the agent with Jaeger OTel tracing"
+    agent_build_docker && agent_run_docker_otel
 end
 
 # Go-TFE tests against atlas
