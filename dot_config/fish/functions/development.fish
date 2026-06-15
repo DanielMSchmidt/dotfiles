@@ -584,3 +584,6 @@ function zedl -d "My local zed fork"
     end
 end
 
+function worklog -d "Opens my local worklog"
+    zed ~/Desktop/worklog.md
+end
