@@ -79,17 +79,43 @@ end
 # Port Jaeger exposes for OTLP/gRPC on the host (see jaeger_start).
 set -x JAEGER_OTLP_PORT 4317
 
+# Host ports for the OpenTelemetry Collector that sits in front of Jaeger and
+# Prometheus. The agent sends all OTLP signals here; the collector fans traces
+# out to Jaeger and exposes metrics for Prometheus to scrape.
+set -x OTEL_COLLECTOR_OTLP_PORT 4319
+set -x OTEL_COLLECTOR_PROM_PORT 8889
+set -x PROMETHEUS_PORT 9090
+
+# Shared Docker network so the agent, collector, Jaeger and Prometheus can talk
+# to each other by container name (avoids the flaky host.docker.internal hop).
+set -x OTEL_NETWORK tfc-otel
+
+function _otel_network_ensure -d "Creates the shared OTel docker network if it doesn't exist yet"
+    docker network inspect $OTEL_NETWORK >/dev/null 2>&1; or docker network create $OTEL_NETWORK >/dev/null
+end
+
 function jaeger_reachable -d "Returns success if Jaeger's OTLP port is reachable on the host"
     nc -z localhost $JAEGER_OTLP_PORT 2>/dev/null
+end
+
+function otel_collector_reachable -d "Returns success if the OTel collector's OTLP port is reachable on the host"
+    nc -z localhost $OTEL_COLLECTOR_OTLP_PORT 2>/dev/null
 end
 
 function _agent_run_docker -d "Internal: runs the tfc-agent container; pass an OTLP address as \$argv[1] to enable tracing"
     set -l otel_args
     if test (count $argv) -gt 0; and test -n "$argv[1]"
-        # Reach the host-published Jaeger port from inside the container.
+        # Join the shared network so the agent can reach the collector by name.
         set otel_args \
             -e TFC_AGENT_OTLP_ADDRESS="$argv[1]" \
-            --add-host host.docker.internal:host-gateway
+            --network $OTEL_NETWORK
+    end
+
+    # Forward TF_LOG from the host only when it's actually set, so we don't
+    # pass an empty value into the container.
+    set -l tf_log_args
+    if set -q TF_LOG; and test -n "$TF_LOG"
+        set tf_log_args -e TF_LOG="$TF_LOG"
     end
 
     docker run --rm \
@@ -101,6 +127,7 @@ function _agent_run_docker -d "Internal: runs the tfc-agent container; pass an O
         -e TFC_ADDRESS="https://$(atlas_hostname)" \
         -e TFC_AGENT_TOKEN="$(agent_token)" \
         $otel_args \
+        $tf_log_args \
         -v $HOME/work/hashicorp/terraform:/terraform \
         hashicorp/tfc-agent:latest
 end
@@ -109,13 +136,15 @@ function agent_run_docker -d "Runs the agent in docker (no tracing)"
     _agent_run_docker
 end
 
-function agent_run_docker_otel -d "Runs the agent in docker with Jaeger OTel tracing"
-    if not jaeger_reachable
-        echo "ERROR: Jaeger is not reachable on localhost:$JAEGER_OTLP_PORT." >&2
-        echo "Start it first with 'jaeger_start' (UI: 'jaeger_open'), then re-run this command." >&2
+function agent_run_docker_otel -d "Runs the agent in docker with OTel tracing + metrics via the collector"
+    if not otel_collector_reachable
+        echo "ERROR: OTel collector is not reachable on localhost:$OTEL_COLLECTOR_OTLP_PORT." >&2
+        echo "Start the observability stack first with 'otel_stack_start'" >&2
+        echo "(Jaeger UI: 'jaeger_open', Prometheus UI: 'prometheus_open'), then re-run this command." >&2
         return 1
     end
-    _agent_run_docker "host.docker.internal:$JAEGER_OTLP_PORT"
+    # The agent joins $OTEL_NETWORK and reaches the collector by container name.
+    _agent_run_docker "otel-collector:4317"
 end
 
 function agent_build_and_run_docker -d "Builds and runs the agent (no tracing)"
@@ -140,7 +169,9 @@ function atlas_rspec -d "Run atlas rspec tests"
 end
 
 function jaeger_start -d "Starts Jaeger Tracing"
+    _otel_network_ensure
     docker run -d --rm --name jaeger \
+      --network $OTEL_NETWORK \
       -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
       -p 6831:6831/udp \
       -p 6832:6832/udp \
@@ -162,4 +193,81 @@ end
 
 function jaeger_stop -d "Stops Jaeger"
     docker stop jaeger
+end
+
+function otel_collector_start -d "Starts the OpenTelemetry Collector (traces -> Jaeger, metrics -> Prometheus)"
+    _otel_network_ensure
+    docker run -d --rm --name otel-collector \
+        --network $OTEL_NETWORK \
+        -p $OTEL_COLLECTOR_OTLP_PORT:4317 \
+        -p $OTEL_COLLECTOR_PROM_PORT:8889 \
+        -v $HOME/.config/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml \
+        otel/opentelemetry-collector-contrib:0.154.0
+end
+
+function otel_collector_stop -d "Stops the OpenTelemetry Collector"
+    docker stop otel-collector
+end
+
+function prometheus_start -d "Starts Prometheus (scrapes the collector's metrics)"
+    _otel_network_ensure
+    docker run -d --rm --name prometheus \
+        --network $OTEL_NETWORK \
+        -p $PROMETHEUS_PORT:9090 \
+        -v $HOME/.config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+        prom/prometheus:v3.0.1
+end
+
+function prometheus_stop -d "Stops Prometheus"
+    docker stop prometheus
+end
+
+function prometheus_open -d "Opens Prometheus UI"
+    open "http://localhost:$PROMETHEUS_PORT"
+end
+
+function otel_stack_start -d "Starts Jaeger + OTel Collector + Prometheus"
+    jaeger_start
+    otel_collector_start
+    prometheus_start
+end
+
+function otel_stack_stop -d "Stops Prometheus + OTel Collector + Jaeger"
+    prometheus_stop
+    otel_collector_stop
+    jaeger_stop
+end
+
+function otel_stack_open -d "Opens the Jaeger and Prometheus UIs"
+    jaeger_open
+    prometheus_open
+end
+
+function otel_stack_status -d "Checks whether the OTel observability stack is operational"
+    set -l all_ok 0
+    set -l checks \
+        "Jaeger (UI)|16686" \
+        "Jaeger (OTLP)|$JAEGER_OTLP_PORT" \
+        "OTel Collector (OTLP)|$OTEL_COLLECTOR_OTLP_PORT" \
+        "OTel Collector (metrics)|$OTEL_COLLECTOR_PROM_PORT" \
+        "Prometheus (UI)|$PROMETHEUS_PORT"
+
+    for check in $checks
+        set -l parts (string split "|" $check)
+        set -l name $parts[1]
+        set -l port $parts[2]
+        if nc -z localhost $port 2>/dev/null
+            printf "  \u2713 %-26s localhost:%s\n" $name $port
+        else
+            printf "  \u2717 %-26s localhost:%s (down)\n" $name $port
+            set all_ok 1
+        end
+    end
+
+    if test $all_ok -eq 0
+        echo "OTel stack is operational."
+    else
+        echo "OTel stack is NOT fully operational. Start it with 'otel_stack_start'."
+    end
+    return $all_ok
 end

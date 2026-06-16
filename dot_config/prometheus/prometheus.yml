@@ -1,0 +1,8 @@
+global:
+    scrape_interval: 10s
+
+scrape_configs:
+    # Scrape the metrics the OTel Collector re-exposes from the tfc-agent.
+    - job_name: tfc-agent-otel
+      static_configs:
+          - targets: ["otel-collector:8889"]
