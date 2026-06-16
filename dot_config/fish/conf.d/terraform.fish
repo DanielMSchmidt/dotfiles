@@ -49,3 +49,25 @@ alias sclib="fish -c 'cd $HOME/work/hashicorp/terraform-stacks-cli && make build
 
 # Debug
 alias dlvtfrpc="fish -c 'cd $TERRAFORM_PATH && dlv attach (ps | grep 'terraform rpcapi' | head -1 | awk '{ print $1 }')'"
+
+## Terraform Policy Plugin
+
+# Set a default path for my local terraform policy plugin repo
+set -x TERRAFORM_POLICY_PLUGIN_PATH $HOME/work/hashicorp/terraform-policy-plugin
+
+# Point the tfc-agent development override at the locally built (linux) policy
+# plugin binary. `make bin-local-dev` in tfc-agent reads TFPOLICY_BINARY and
+# links this binary into the agent instead of downloading the tfpolicy plugin
+# release, so the agent uses the plugin from $TERRAFORM_POLICY_PLUGIN_PATH.
+set -x TFPOLICY_BINARY $TERRAFORM_POLICY_PLUGIN_PATH/bin/tfpolicy-plugin
+
+# Build terraform policy plugin binary (native OS, e.g. to run/test on this host)
+function tpb -d "Build local terraform policy plugin binary"
+    echo "Building terraform policy plugin binary at $TERRAFORM_POLICY_PLUGIN_PATH/bin/tfpolicy-plugin"
+    fish -c "cd $TERRAFORM_POLICY_PLUGIN_PATH && mise x -- go build -v -o bin/tfpolicy-plugin"
+end
+# Build terraform policy plugin binary for linux (agent-friendly, used by tfc-agent)
+function tpbl -d "Build local terraform policy plugin binary for linux"
+    echo "Building linux terraform policy plugin binary at $TERRAFORM_POLICY_PLUGIN_PATH/bin/tfpolicy-plugin"
+    fish -c "cd $TERRAFORM_POLICY_PLUGIN_PATH && GOOS=linux GOARCH=amd64 mise x -- go build -v -o bin/tfpolicy-plugin"
+end

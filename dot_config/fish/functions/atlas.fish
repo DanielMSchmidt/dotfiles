@@ -7,6 +7,11 @@ set -x _TFC_AGENT_STACK_COMPONENTS_ENABLED 1
 
 set -x ATLAS_ORG_NAME hashicorp
 
+# Name of the agent pool to use. Override by exporting ATLAS_AGENT_POOL_NAME.
+if not set -q ATLAS_AGENT_POOL_NAME
+    set -gx ATLAS_AGENT_POOL_NAME dschmidt-ap
+end
+
 function atlas_hostname -d "Outputs the atlas host name"
     if set -q ATLAS_HOSTNAME
         echo $ATLAS_HOSTNAME
@@ -29,16 +34,42 @@ function atlas_token -d "Get auth token to authenticate against atlas"
     echo $TOKEN
 end
 
-function agent_token -d "Gets agent token from atlas"
+function agent_pool_id -d "Gets the id of the \$ATLAS_AGENT_POOL_NAME agent pool, creating it if missing"
     set TOKEN (atlas_token)
     set HOST (atlas_hostname)
 
-    set AGENT_POOL_ID (curl \
+    set POOL_ID (curl \
             --header "Authorization: Bearer $TOKEN" \
             --header "Content-Type: application/vnd.api+json" \
             --request GET \
             https://$HOST/api/v2/organizations/$ATLAS_ORG_NAME/agent-pools  2> /dev/null \
-        | jq -r '.data[0].id')
+        | jq -r --arg name "$ATLAS_AGENT_POOL_NAME" 'first(.data[] | select(.attributes.name == $name) | .id) // empty')
+
+    if test -z "$POOL_ID"
+        echo "Agent pool '$ATLAS_AGENT_POOL_NAME' not found, creating it..." >&2
+        set POOL_ID (curl \
+                --header "Authorization: Bearer $TOKEN" \
+                --header "Content-Type: application/vnd.api+json" \
+                --request POST \
+                --data "{\"data\":{\"type\":\"agent-pools\",\"attributes\":{\"name\":\"$ATLAS_AGENT_POOL_NAME\"}}}" \
+                https://$HOST/api/v2/organizations/$ATLAS_ORG_NAME/agent-pools 2> /dev/null \
+            | jq -r '.data.id // empty')
+    end
+
+    if test -z "$POOL_ID"
+        echo "ERROR: Could not find or create agent pool '$ATLAS_AGENT_POOL_NAME'" >&2
+        return 1
+    end
+
+    echo $POOL_ID
+end
+
+function agent_token -d "Gets agent token from atlas"
+    set TOKEN (atlas_token)
+    set HOST (atlas_hostname)
+
+    set AGENT_POOL_ID (agent_pool_id)
+    or return 1
 
     echo (curl \
             --header "Authorization: Bearer $TOKEN" \
@@ -73,7 +104,7 @@ end
 
 function agent_build_docker -d "Builds the agent docker container"
     set CURRENT_DIR (pwd)
-    cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/internal/development.terraformCliPath=/terraform/bin/terraform'" make docker && cd $CURRENT_DIR
+    cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/internal/development.terraformCliPath=/terraform/bin/terraform' -X 'github.com/hashicorp/tfc-agent/internal/development.tfpolicyPluginPath=/tfpolicy/bin/tfpolicy-plugin'" make docker && cd $CURRENT_DIR
 end
 
 # Port Jaeger exposes for OTLP/gRPC on the host (see jaeger_start).
@@ -129,6 +160,7 @@ function _agent_run_docker -d "Internal: runs the tfc-agent container; pass an O
         $otel_args \
         $tf_log_args \
         -v $HOME/work/hashicorp/terraform:/terraform \
+        -v $HOME/work/hashicorp/terraform-policy-plugin:/tfpolicy \
         hashicorp/tfc-agent:latest
 end
 
