@@ -139,6 +139,7 @@ function _agent_run_docker -d "Internal: runs the tfc-agent container; pass an O
         # Join the shared network so the agent can reach the collector by name.
         set otel_args \
             -e TFC_AGENT_OTLP_ADDRESS="$argv[1]" \
+            -e TFC_AGENT_OTLP_FORWARD_SPANS=1 \
             --network $OTEL_NETWORK
     end
 
