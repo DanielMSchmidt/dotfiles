@@ -72,6 +72,9 @@ unset HOMEBREW_GITHUB_API_TOKEN
 {{ end -}}
 rm -f "$brewfile"
 
+# Enable colima to auto-start at login
+brew services start colima
+
 # Install Fisher plugins
 {{ range .packages.universal.fisher -}}
 fish -c 'fisher install {{ . | quote }}'
