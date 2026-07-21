@@ -140,7 +140,11 @@ fish -c 'mise install -y'
 {{ if .isWorkComputer -}}
 # Install Pi packages after Mise makes the Pi CLI available.
 {{ range .packages.work.pi -}}
+{{ if hasPrefix "./" . -}}
+# Local Pi packages are managed by chezmoi and loaded from settings.json.
+{{ else -}}
 pi install {{ . | quote }}
+{{ end -}}
 {{ end -}}
 {{ end -}}
 {{ end -}}

@@ -123,6 +123,7 @@ packages:
         fisher: []
         pi:
             - "npm:pi-bedrock-mantle@1.0.2"
+            - "./packages/terraform-workflow"
 
     private:
         taps:

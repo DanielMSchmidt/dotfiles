@@ -6,3 +6,7 @@ claude-configs
 {{ if ne .chezmoi.os "darwin" }}
 dot_config/fish/conf.d/1password.fish
 {{ end }}
+
+{{ if not .isWorkComputer }}
+dot_pi/agent/packages/terraform-workflow
+{{ end }}

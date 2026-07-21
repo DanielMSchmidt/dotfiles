@@ -1,0 +1,14 @@
+{
+  "name": "terraform-workflow",
+  "private": true,
+  "pi": {
+    "extensions": [
+      "./extensions/terraform-guard.ts",
+      "./extensions/terraform-github-issues.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  }
+}
