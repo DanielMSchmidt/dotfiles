@@ -121,6 +121,8 @@ packages:
             - name: "Okta Verify"
               id: "490179405"
         fisher: []
+        pi:
+            - "npm:pi-bedrock-mantle@1.0.2"
 
     private:
         taps:
