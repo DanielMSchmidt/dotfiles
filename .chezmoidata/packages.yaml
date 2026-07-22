@@ -63,7 +63,6 @@ packages:
             - "google-chrome@canary"
             - "handy"
             - "imageoptim"
-            - "jordanbaird-ice"
             - "kap"
             - "maccy"
             - "monodraw"
@@ -71,6 +70,7 @@ packages:
             - "raycast"
             - "rectangle-pro"
             - "spotify"
+            - "thaw"
             - "zed"
         mas:
             - name: "Focus To-Do"
