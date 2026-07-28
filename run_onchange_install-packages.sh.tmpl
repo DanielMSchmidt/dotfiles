@@ -51,6 +51,24 @@ mas {{ .name | quote }}, id: {{ .id }}
 {{ end -}}
 BREWEOF
 
+# Trust every non-official tap referenced in the Brewfile before bundling.
+# Homebrew 6.0+ refuses to load formulae/casks from untrusted taps and would
+# otherwise prompt (or fail non-interactively). `brew trust` is idempotent and
+# normalizes tap names (e.g. danielmschmidt/homebrew-tap -> danielmschmidt/tap),
+# so we derive taps from the Brewfile itself and keep trust in sync automatically.
+grep -E '^(tap|brew|cask) ' "$brewfile" | while read -r kind name _; do
+    name=${name//\"/}; name=${name%,}
+    case "$kind" in
+        tap) tap="$name" ;;
+        brew|cask)
+            # Only owner/tap/formula references carry a tap that needs trusting.
+            [[ "$name" == */*/* ]] || continue
+            tap="${name%/*}"
+            ;;
+    esac
+    brew trust --tap "$tap" >/dev/null 2>&1 || true
+done
+
 # Install packages
 {{ if .isWorkComputer -}}
 export HOMEBREW_GITHUB_API_TOKEN='{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/ne2c6f2t3ytzfuzvdhxt4agmdu/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}'
