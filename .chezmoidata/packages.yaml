@@ -54,8 +54,8 @@ packages:
             - "1password"
             - "1password-cli"
             - "caffeine"
-            - "cmake"
-            - "flux"
+            - "cmake-app"
+            - "flux-app"
             - "font-hack"
             - "font-hack-nerd-font"
             - "ghostty"
@@ -132,11 +132,13 @@ packages:
             - "stripe/stripe-cli"
             - "yakitrak/yakitrak"
         brews:
+            - "anomalyco/tap/opencode"
             - "arthur-ficial/tap/apfel"
             - "bash"
             - "bat"
             - "chezmoi"
             - "cloudflared"
+            - "ollama"
             - "pkgconf"
             - "rtk"
             - "sdl2_image"
@@ -153,3 +155,10 @@ packages:
             - name: "MacDroid"
               id: "1476545828"
         fisher: []
+
+# Local LLM models pulled by run_onchange_setup-ollama.sh.tmpl.
+# Sized for a 16GB Apple Silicon machine: coding-specialized Qwen2.5-Coder
+# (7B for chat/edit + agentic tools, 3B for fast autocomplete/FIM).
+ollamaModels:
+    - "qwen2.5-coder:3b"
+    - "qwen2.5-coder:7b"

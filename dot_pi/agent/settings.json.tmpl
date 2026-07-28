@@ -9,6 +9,12 @@
     "bedrock-mantle/openai.gpt-5.6-terra",
     "bedrock-mantle/openai.gpt-5.6-sol",
     "bedrock-mantle/openai.gpt-5.6-luna"
+  ]{{ else }},
+  "defaultProvider": "ollama",
+  "defaultModel": "qwen2.5-coder:7b",
+  "enabledModels": [
+    "ollama/qwen2.5-coder:7b",
+    "ollama/qwen2.5-coder:3b"
   ]{{ end }},
   "compaction": {
     "enabled": true,

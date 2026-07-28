@@ -1,0 +1,43 @@
+#!/bin/bash
+{{ if and (eq .chezmoi.os "darwin") (not .isWorkComputer) -}}
+# Provision the local Ollama runtime: load the tuned launchd service and pull
+# the declared coding models. Personal machines only — the work machine uses the
+# Bedrock/Pi cloud stack.
+#
+# We run Ollama via a chezmoi-managed LaunchAgent
+# (~/Library/LaunchAgents/com.danielschmidt.ollama.plist) rather than
+# `brew services`, because the agents (opencode, Pi) rely on the *server's*
+# context window — they can't raise num_ctx per request — and only a plist can
+# persist OLLAMA_CONTEXT_LENGTH across reboots. The plist also pins flash
+# attention and q8 KV-cache to keep memory in budget on 16GB.
+#
+# Re-runs whenever this script's rendered content changes, including the plist
+# hash below and the model list.
+#
+# plist hash: {{ include "private_Library/LaunchAgents/com.danielschmidt.ollama.plist" | sha256sum }}
+# Models: {{ range .ollamaModels }}{{ . }} {{ end }}
+
+set -e
+
+plist="$HOME/Library/LaunchAgents/com.danielschmidt.ollama.plist"
+
+# If the Homebrew service is running, stop it so it can't race our LaunchAgent
+# for port 11434.
+brew services stop ollama >/dev/null 2>&1 || true
+
+# (Re)load the LaunchAgent so env changes take effect.
+launchctl unload "$plist" >/dev/null 2>&1 || true
+launchctl load -w "$plist"
+
+# Wait for the server to accept connections before pulling.
+for _ in $(seq 1 60); do
+    if ollama ls >/dev/null 2>&1; then break; fi
+    sleep 0.5
+done
+
+# Pull the declared models. `ollama pull` is idempotent and only downloads when
+# a model is missing or its manifest changed.
+{{ range .ollamaModels -}}
+ollama pull {{ . | quote }}
+{{ end -}}
+{{ end -}}

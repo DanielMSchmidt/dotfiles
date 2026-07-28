@@ -1,0 +1,30 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/qwen2.5-coder:7b",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "qwen2.5-coder:7b": {
+          "name": "Qwen2.5 Coder 7B",
+          "tools": true,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        },
+        "qwen2.5-coder:3b": {
+          "name": "Qwen2.5 Coder 3B",
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}

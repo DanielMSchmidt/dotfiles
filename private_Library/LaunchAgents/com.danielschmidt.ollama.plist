@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.danielschmidt.ollama</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/ollama</string>
+        <string>serve</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- Tuned for a 16GB Apple Silicon machine. A large default context is
+             required so agentic tools (opencode, Pi) can read/edit files; q8
+             KV-cache + flash attention keep the KV cache memory in budget. -->
+        <key>OLLAMA_CONTEXT_LENGTH</key>
+        <string>32768</string>
+        <key>OLLAMA_FLASH_ATTENTION</key>
+        <string>1</string>
+        <key>OLLAMA_KV_CACHE_TYPE</key>
+        <string>q8_0</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/ollama.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/ollama.log</string>
+</dict>
+</plist>

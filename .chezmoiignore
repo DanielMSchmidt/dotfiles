@@ -1,12 +1,21 @@
 README.md
+CLAUDE.md
 settings.json
 claude-configs
 .claude/**
 
 {{ if ne .chezmoi.os "darwin" }}
 dot_config/fish/conf.d/1password.fish
+Library/LaunchAgents/com.danielschmidt.ollama.plist
 {{ end }}
 
 {{ if not .isWorkComputer }}
 dot_pi/agent/packages/terraform-workflow
+{{ end }}
+
+{{ if .isWorkComputer }}
+# Local-LLM stack is personal-only; the work machine uses the Bedrock/Pi cloud stack.
+# NB: .chezmoiignore patterns match TARGET paths, so use the resolved names.
+.config/opencode/opencode.json
+Library/LaunchAgents/com.danielschmidt.ollama.plist
 {{ end }}

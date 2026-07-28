@@ -1,3 +1,4 @@
+{{ if .isWorkComputer -}}
 function pi -d "Start Pi with fresh Doormat Bedrock credentials"
     if not command -q doormat
         echo "Error: doormat is not installed."
@@ -26,3 +27,12 @@ function pi -d "Start Pi with fresh Doormat Bedrock credentials"
     set -lx BEDROCK_MANTLE_AWS_PROFILE frontiers_dev_bedrock
     command pi $argv
 end
+{{- else -}}
+function pi -d "Start Pi with the local Ollama model (no cloud credentials needed)"
+    if not command -q pi
+        echo "Error: pi is not installed (managed via mise)."
+        return 1
+    end
+    command pi $argv
+end
+{{- end }}

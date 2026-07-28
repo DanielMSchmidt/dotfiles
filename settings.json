@@ -1831,7 +1831,20 @@
             "api_url": "https://generativelanguage.googleapis.com"
         },
         "ollama": {
-            "api_url": "http://localhost:11434"
+            "api_url": "http://localhost:11434",
+            "available_models": [
+                {
+                    "name": "qwen2.5-coder:7b",
+                    "display_name": "Qwen2.5 Coder 7B (local)",
+                    "max_tokens": 32768,
+                    "supports_tools": true
+                },
+                {
+                    "name": "qwen2.5-coder:3b",
+                    "display_name": "Qwen2.5 Coder 3B (local)",
+                    "max_tokens": 32768
+                }
+            ]
         },
         "openai": {
             "api_url": "https://api.openai.com/v1"
