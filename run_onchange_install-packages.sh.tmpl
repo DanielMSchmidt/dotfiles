@@ -72,7 +72,16 @@ unset HOMEBREW_GITHUB_API_TOKEN
 {{ end -}}
 rm -f "$brewfile"
 
-# Enable colima to auto-start at login
+# Ensure colima runs Kubernetes (k3s) and auto-starts at login.
+# The brew service runs `colima start -f`, which reads colima's persisted config,
+# so we only need to enable Kubernetes in that config once — it survives restarts.
+# Gate on the persisted value so a routine package change never tears down a
+# running cluster; only a fresh/un-configured machine pays the provision cost.
+k8s_enabled=$(awk '/^kubernetes:/{f=1} f&&/enabled:/{print $2; exit}' "$HOME/.colima/default/colima.yaml" 2>/dev/null)
+if [ "$k8s_enabled" != "true" ]; then
+    colima start --kubernetes --cpu 4 --memory 4
+    colima stop
+fi
 brew services start colima
 
 # Install Fisher plugins
