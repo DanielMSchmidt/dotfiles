@@ -7,6 +7,12 @@ directly — edit the source here and apply.
 
 ## Golden rules
 
+- **Agents must never run `chezmoi` themselves** (no `apply`, `diff`, `init`,
+  `execute-template`, `re-add`, etc.). Edit the source files, then **ask the user
+  to run the chezmoi command** and report back. Rationale: `chezmoi` triggers an
+  interactive pre-hook (1Password sign-in prompt) and `autoCommit`/`autoPush`, so
+  it must stay under the user's control. Validate template/JSON changes with other
+  tools instead (e.g. a strict JSON parser, or rendering the branch manually).
 - Edit source files in this repo, then run `chezmoi apply` to deploy. Never edit
   the applied copy under `$HOME` (it will be overwritten on the next apply).
 - Preview before applying: `chezmoi diff` (all) or `chezmoi diff ~/.config/fish`.
