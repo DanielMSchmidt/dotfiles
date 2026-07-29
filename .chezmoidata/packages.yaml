@@ -155,6 +155,13 @@ packages:
             - name: "MacDroid"
               id: "1476545828"
         fisher: []
+        pi:
+            - "npm:@mjasnikovs/pi-task"
+            - "npm:pi-web-access"
+            - "npm:pi-subagents"
+            - "npm:context-mode"
+            - "npm:pi-lens"
+            - "npm:pi-docparser"
 
 # Local LLM models pulled by run_onchange_setup-ollama.sh.tmpl.
 # Sized for a 16GB Apple Silicon machine: coding-specialized Qwen2.5-Coder
