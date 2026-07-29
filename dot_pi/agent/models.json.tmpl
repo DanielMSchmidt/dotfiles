@@ -7,9 +7,12 @@
       "baseUrl": "http://localhost:11434/v1",
       "api": "openai-completions",
       "apiKey": "ollama",
+      "compat": {
+        "thinkingFormat": "qwen-chat-template"
+      },
       "models": [
-        { "id": "qwen2.5-coder:7b" },
-        { "id": "qwen2.5-coder:3b" }
+        { "id": "qwen3.5:9b", "contextWindow": 65536, "maxTokens": 32768, "reasoning": true },
+        { "id": "qwen2.5-coder:3b", "contextWindow": 32768 }
       ]
     }
   }

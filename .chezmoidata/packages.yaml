@@ -164,8 +164,10 @@ packages:
             - "npm:pi-docparser"
 
 # Local LLM models pulled by run_onchange_setup-ollama.sh.tmpl.
-# Sized for a 16GB Apple Silicon machine: coding-specialized Qwen2.5-Coder
-# (7B for chat/edit + agentic tools, 3B for fast autocomplete/FIM).
+# Sized for a 16GB Apple Silicon machine:
+# - qwen3.5:9b (dense, ~6.6GB Q4) drives the agents — it has a reliable native
+#   tool-call parser, unlike qwen2.5-coder:7b which leaked tool calls as text.
+# - qwen2.5-coder:3b stays for fast autocomplete/FIM (no tool-calling needed).
 ollamaModels:
     - "qwen2.5-coder:3b"
-    - "qwen2.5-coder:7b"
+    - "qwen3.5:9b"

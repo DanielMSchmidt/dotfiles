@@ -1,4 +1,4 @@
-function qc -d "Interactive chat with the local coding model (qwen2.5-coder)"
+function qc -d "Interactive chat with the local coding model (qwen3.5)"
     if not command -q ollama
         echo "Error: ollama is not installed (declared in packages.yaml)."
         return 1

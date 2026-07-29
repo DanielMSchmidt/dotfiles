@@ -2,7 +2,7 @@
 
 # Default coding model used by the ai/qc/commitmsg helpers. Override per-shell
 # with `set -gx AI_LOCAL_MODEL qwen2.5-coder:3b` to trade quality for speed.
-set -x AI_LOCAL_MODEL qwen2.5-coder:7b
+set -x AI_LOCAL_MODEL qwen3.5:9b
 
 # Server tuning, applied when `ollama serve` is launched from a shell. The
 # always-on server runs via a LaunchAgent that carries the same values (see

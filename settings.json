@@ -1834,8 +1834,8 @@
             "api_url": "http://localhost:11434",
             "available_models": [
                 {
-                    "name": "qwen2.5-coder:7b",
-                    "display_name": "Qwen2.5 Coder 7B (local)",
+                    "name": "qwen3.5:9b",
+                    "display_name": "Qwen3.5 9B (local)",
                     "max_tokens": 32768,
                     "supports_tools": true
                 },
