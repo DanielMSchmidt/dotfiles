@@ -15,6 +15,13 @@ echo "Setting finder preferences"
 # Show all files
 defaults write com.apple.finder AppleShowAllFiles YES
 
+# duti wrapper: a single rejected association must not abort the whole script.
+# Recent macOS refuses some broad UTIs (e.g. public.data -> LaunchServices
+# error -50), which would otherwise kill setup before killall/IPv6 below.
+duti() {
+    command duti "$@" || echo "  ! duti $* failed (skipping)" >&2
+}
+
 # Open text files with Zed Preview
 duti -s dev.zed.Zed public.json all
 duti -s dev.zed.Zed public.plain-text all
@@ -22,7 +29,7 @@ duti -s dev.zed.Zed public.python-script all
 duti -s dev.zed.Zed public.shell-script all
 duti -s dev.zed.Zed public.source-code all
 duti -s dev.zed.Zed public.text all
-duti -s dev.zed.Zed public.unix-executable all
+duti -s com.mitchellh.ghostty public.unix-executable all
 # this works for files without a filename extension
 duti -s dev.zed.Zed public.data all
 
