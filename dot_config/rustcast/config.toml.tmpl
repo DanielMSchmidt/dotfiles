@@ -177,6 +177,43 @@ icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
 alias = "Hue Zoom Light: Off"
 alias_lc = "zoom off"
 
+# --- Power / session ---------------------------------------------------------
+# `pmset sleepnow` / `displaysleepnow` need no sudo. Shutdown and restart go
+# through System Events (the sudo-free path; apps get a chance to save first).
+# "Lock" starts the screen saver — it only actually locks if
+# System Settings › Lock Screen › "Require password after screen saver begins"
+# is set to Immediately.
+
+[[shells]]
+command = "pmset sleepnow"
+icon_path = "/System/Applications/System Settings.app/Contents/Resources/SystemSettings.icns"
+alias = "System: Sleep"
+alias_lc = "sleep"
+
+[[shells]]
+command = "pmset displaysleepnow"
+icon_path = "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/Resources/AppIcon.icns"
+alias = "System: Sleep Display"
+alias_lc = "sleep display"
+
+[[shells]]
+command = "open -a ScreenSaverEngine"
+icon_path = "/System/Library/CoreServices/ScreenSaverEngine.app/Contents/Resources/AppIcon.icns"
+alias = "System: Lock Screen"
+alias_lc = "lock"
+
+[[shells]]
+command = "osascript -e 'tell application \"System Events\" to restart'"
+icon_path = "/System/Applications/System Settings.app/Contents/Resources/SystemSettings.icns"
+alias = "System: Restart"
+alias_lc = "restart"
+
+[[shells]]
+command = "osascript -e 'tell application \"System Events\" to shut down'"
+icon_path = "/System/Applications/System Settings.app/Contents/Resources/SystemSettings.icns"
+alias = "System: Shut Down"
+alias_lc = "shutdown"
+
 [buffer_rules]
 clear_on_hide = true
 clear_on_enter = true
