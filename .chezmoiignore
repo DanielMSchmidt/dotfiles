@@ -7,6 +7,9 @@ claude-configs
 {{ if ne .chezmoi.os "darwin" }}
 dot_config/fish/conf.d/1password.fish
 Library/LaunchAgents/com.danielschmidt.ollama.plist
+# macOS-only launcher/snippet tools (espanso + rustcast)
+Library/Application Support/espanso
+.config/rustcast
 {{ end }}
 
 {{ if not .isWorkComputer }}

@@ -1,0 +1,195 @@
+# rustcast launcher config — managed by chezmoi.  rustcast v1.0 schema.
+# Full options: https://github.com/MystikoLab/rustcast/wiki
+#
+# IMPORTANT: rustcast v1.0 deserializes this strictly — every top-level field
+# below must be present or it silently falls back to defaults (dropping the
+# shell commands). Keep this in sync with the app's default config if it updates.
+# Go template ({{ "{{" }} ... {{ "}}" }}): the hue paths are rendered absolute
+# so rustcast (launched by macOS, minimal PATH) can find the script.
+# auto_update is ON. If a future version adds config fields, this file may need
+# them too, or rustcast silently drops the shells. To recover: move this file
+# aside, relaunch rustcast to regenerate its default, then re-merge the shells.
+
+toggle_hotkey = "SUPER+SPACE"
+clipboard_hotkey = "SUPER+SHIFT+C"
+event_duration = 60
+main_page = "blank"
+start_at_login = true
+window_location = "Default"
+show_on_startup = true
+placeholder = "Time to be productive!"
+search_url = "https://www.google.com/search?q=%s"
+haptic_feedback = false
+cbhist = true
+cbhist_paste_on_select = false
+show_trayicon = true
+search_dirs = ["~"]
+blacklist = []
+log_path = "/tmp/rustcast.log"
+debounce_delay = 300
+auto_update = true
+restore_input_source_on_close = true
+
+# --- Spotify (macOS AppleScript — no API credentials needed) -----------------
+[[shells]]
+command = "osascript -e 'tell application \"Spotify\" to playpause'"
+icon_path = "/Applications/Spotify.app/Contents/Resources/AppIcon.icns"
+alias = "Spotify: Play / Pause"
+alias_lc = "play"
+
+[[shells]]
+command = "osascript -e 'tell application \"Spotify\" to next track'"
+icon_path = "/Applications/Spotify.app/Contents/Resources/AppIcon.icns"
+alias = "Spotify: Next Track"
+alias_lc = "next"
+
+[[shells]]
+command = "osascript -e 'tell application \"Spotify\" to previous track'"
+icon_path = "/Applications/Spotify.app/Contents/Resources/AppIcon.icns"
+alias = "Spotify: Previous Track"
+alias_lc = "previous"
+
+# --- Philips Hue (rooms in ~/.config/hue/scenes.conf) ------------------------
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue all bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue All Rooms: Bright"
+alias_lc = "all bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue all chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue All Rooms: Chill"
+alias_lc = "all chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue all off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue All Rooms: Off"
+alias_lc = "all off"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue office bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Office (Arbeitszimmer): Bright"
+alias_lc = "office bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue office chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Office (Arbeitszimmer): Chill"
+alias_lc = "office chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue office off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Office (Arbeitszimmer): Off"
+alias_lc = "office off"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue living bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Living Room (Wohnzimmer): Bright"
+alias_lc = "living bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue living chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Living Room (Wohnzimmer): Chill"
+alias_lc = "living chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue living off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Living Room (Wohnzimmer): Off"
+alias_lc = "living off"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue meeting bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Couch Meeting: Bright"
+alias_lc = "meeting bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue meeting chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Couch Meeting: Chill"
+alias_lc = "meeting chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue meeting off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Couch Meeting: Off"
+alias_lc = "meeting off"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue bedroom bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Bedroom (Schlafzimmer): Bright"
+alias_lc = "bedroom bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue bedroom chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Bedroom (Schlafzimmer): Chill"
+alias_lc = "bedroom chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue bedroom off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Bedroom (Schlafzimmer): Off"
+alias_lc = "bedroom off"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue couch bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Couch: Bright"
+alias_lc = "couch bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue couch chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Couch: Chill"
+alias_lc = "couch chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue couch off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Couch: Off"
+alias_lc = "couch off"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue zoom bright"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Zoom Light: Bright"
+alias_lc = "zoom bright"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue zoom chill"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Zoom Light: Chill"
+alias_lc = "zoom chill"
+
+[[shells]]
+command = "{{ .chezmoi.homeDir }}/.local/bin/hue zoom off"
+icon_path = "/System/Applications/Home.app/Contents/Resources/AppIcon.icns"
+alias = "Hue Zoom Light: Off"
+alias_lc = "zoom off"
+
+[buffer_rules]
+clear_on_hide = true
+clear_on_enter = true
+
+[theme]
+text_color = [0.95, 0.95, 0.96]
+background_color = [0.0, 0.0, 0.0]
+secondary_bg_color = [0.1, 0.1, 0.1]
+blur = false
+show_icons = true
+show_scroll_bar = false
+theme_mode = "dark"
+
+[modes]
+
+[aliases]

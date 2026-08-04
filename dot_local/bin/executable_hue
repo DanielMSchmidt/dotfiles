@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# hue — recall Philips Hue scenes per room/zone, or across all of them.
+#
+# Each "scene" (a Hue room/zone) has a bright and a chill profile, mapped in
+# ~/.config/hue/scenes.conf. Control one room, or all at once:
+#
+#   hue <room> bright|chill|off     e.g. hue office chill
+#   hue all bright|chill|off        every configured room
+#   hue list                        show configured rooms
+#   hue pair                        (re)pair with the bridge
+#
+# Self-pairing, like the Raycast Hue extension: first use discovers the bridge
+# and registers. If the link button hasn't been pressed you get a macOS
+# notification asking you to press it, then run again. The key is cached at
+# ~/.local/state/hue/credentials.json (0600, never committed). Uses the Hue
+# local (v1) API — no cloud account. Override discovery with HUE_BRIDGE_IP=<ip>.
+set -euo pipefail
+
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/hue/scenes.conf"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hue"
+CRED_FILE="$STATE_DIR/credentials.json"
+DEVICETYPE="rustcast#$(hostname -s 2>/dev/null || echo mac)"
+
+notify() {
+  echo "$1"
+  if command -v osascript >/dev/null 2>&1; then
+    osascript -e "display notification \"$1\" with title \"Hue\"" >/dev/null 2>&1 || true
+  fi
+}
+die() { notify "$1"; exit 1; }
+
+# Pick the first reachable bridge (the discovery service may list several,
+# including ones on other networks).
+discover_ip() {
+  if [ -n "${HUE_BRIDGE_IP:-}" ]; then echo "$HUE_BRIDGE_IP"; return; fi
+  local ips ip
+  ips=$(curl -fsS --max-time 5 https://discovery.meethue.com 2>/dev/null | jq -r '.[].internalipaddress // empty')
+  for ip in $ips; do
+    if curl -fsS --max-time 3 "http://$ip/api/0/config" >/dev/null 2>&1; then echo "$ip"; return; fi
+  done
+  die "No reachable Hue bridge found. Set HUE_BRIDGE_IP=<ip> and retry."
+}
+
+pair() {
+  local ip="$1" resp err key
+  resp=$(curl -fsS --max-time 5 -X POST "http://$ip/api" -d "{\"devicetype\":\"$DEVICETYPE\"}" 2>/dev/null || true)
+  err=$(printf '%s' "$resp" | jq -r '.[0].error.type // empty' 2>/dev/null || true)
+  [ "$err" = "101" ] && die "Press the link button on top of your Hue Bridge, then run this again."
+  key=$(printf '%s' "$resp" | jq -r '.[0].success.username // empty' 2>/dev/null || true)
+  [ -n "$key" ] || die "Hue pairing failed. Bridge said: $resp"
+  mkdir -p "$STATE_DIR"; chmod 700 "$STATE_DIR"
+  printf '{"ip":"%s","username":"%s"}\n' "$ip" "$key" > "$CRED_FILE"; chmod 600 "$CRED_FILE"
+  notify "Hue bridge paired successfully."
+}
+
+# Populates IP and HUSER, pairing if needed.
+ensure_auth() {
+  if [ -f "$CRED_FILE" ]; then
+    IP=$(jq -r '.ip' "$CRED_FILE"); HUSER=$(jq -r '.username' "$CRED_FILE")
+    if curl -fsS --max-time 5 "http://$IP/api/$HUSER/groups/0" 2>/dev/null \
+         | jq -e 'type == "object" and (has("state") or has("action"))' >/dev/null 2>&1; then
+      return
+    fi
+  fi
+  IP=$(discover_ip); pair "$IP"
+  IP=$(jq -r '.ip' "$CRED_FILE"); HUSER=$(jq -r '.username' "$CRED_FILE")
+}
+
+api() {  # method path [json-body]
+  if [ -n "${3:-}" ]; then
+    curl -fsS --max-time 6 -X "$1" "http://$IP/api/$HUSER$2" -d "$3"
+  else
+    curl -fsS --max-time 6 -X "$1" "http://$IP/api/$HUSER$2"
+  fi
+}
+
+[ -f "$CONFIG" ] || die "Missing $CONFIG (chezmoi apply should create it)."
+
+# key -> "gid<TAB>bright<TAB>chill<TAB>label" (fields trimmed)
+row_for() {
+  awk -F'|' -v k="$1" '
+    /^[[:space:]]*#/ {next} NF<4 {next}
+    { for (i=1;i<=NF;i++) gsub(/^[[:space:]]+|[[:space:]]+$/,"",$i)
+      if ($1==k) { print $2"\t"$3"\t"$4"\t"$5; exit } }' "$CONFIG"
+}
+all_keys() {
+  awk -F'|' '/^[[:space:]]*#/{next} NF<4{next}
+    {gsub(/^[[:space:]]+|[[:space:]]+$/,"",$1); print $1}' "$CONFIG"
+}
+
+# gid name -> scene id (uses $SCENES json fetched once)
+scene_id() {
+  printf '%s' "$SCENES" | jq -r --arg n "$2" --arg g "$1" \
+    'to_entries[] | select(.value.name==$n and (.value.group==$g)) | .key' | head -1
+}
+
+apply_one() {  # key mode -> echoes "Label -> mode"
+  local key="$1" mode="$2" row gid bright chill label name sid
+  row=$(row_for "$key"); [ -n "$row" ] || die "Unknown room '$key' (see: hue list)."
+  IFS=$'\t' read -r gid bright chill label <<<"$row"
+  [ -n "$label" ] || label="$key"
+  case "$mode" in
+    off) api PUT "/groups/$gid/action" '{"on":false}' >/dev/null ;;
+    bright|chill)
+      [ "$mode" = bright ] && name="$bright" || name="$chill"
+      sid=$(scene_id "$gid" "$name")
+      [ -n "$sid" ] || die "Scene '$name' not found in group $gid."
+      api PUT "/groups/$gid/action" "{\"scene\":\"$sid\"}" >/dev/null ;;
+    *) die "mode must be bright|chill|off" ;;
+  esac
+  echo "$label -> $mode"
+}
+
+usage() { echo "usage: hue {<room>|all} {bright|chill|off} | hue list | hue pair" >&2; exit 2; }
+
+main() {
+  [ $# -ge 1 ] || usage
+  case "$1" in
+    list)
+      echo "Configured rooms:"
+      awk -F'|' '/^[[:space:]]*#/{next} NF<4{next}
+        {for (i=1;i<=NF;i++) gsub(/^[[:space:]]+|[[:space:]]+$/,"",$i);
+         printf "  %-8s group %-3s  bright=%-12s chill=%-12s %s\n",$1,$2,$3,$4,$5}' "$CONFIG"
+      exit 0 ;;
+    pair)
+      rm -f "$CRED_FILE"; ensure_auth; echo "paired to $IP"; exit 0 ;;
+  esac
+  local target="$1" mode="${2:-}"
+  [ -n "$mode" ] || usage
+  ensure_auth
+  SCENES=$(api GET /scenes)
+  if [ "$target" = all ]; then
+    local n=0 k
+    while IFS= read -r k; do
+      [ -n "$k" ] || continue
+      apply_one "$k" "$mode" >/dev/null
+      n=$((n+1))
+    done < <(all_keys)
+    notify "All rooms -> $mode ($n)"
+  else
+    local out
+    out=$(apply_one "$target" "$mode") || exit 1
+    notify "$out"
+  fi
+}
+
+main "$@"

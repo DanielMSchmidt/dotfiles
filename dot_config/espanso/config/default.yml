@@ -1,0 +1,8 @@
+# espanso base configuration — managed by chezmoi.
+# Docs: https://espanso.org/docs/configuration/basics/
+#
+# Snippets ("matches") live in ../match/*.yml. Edit those, run `chezmoi apply`,
+# and run_onchange_after_setup-espanso restarts espanso so changes take effect.
+
+# Clipboard backend: reliable injection of longer/multi-line snippets.
+backend: Clipboard
