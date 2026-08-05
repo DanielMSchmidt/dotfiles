@@ -100,6 +100,16 @@ To add a package: edit `packages.yaml` (correct section), then `chezmoi apply`
 - **claude-configs/terraform/**: reference CLAUDE.md + agent config for the
   HashiCorp Terraform repo. Not deployed by chezmoi (it's ignored); it's a
   drop-in for that project.
+- **rustcast** (`vendor/rustcast` submodule + `patches/`): built from source, *not*
+  installed from the Homebrew cask — the released build never re-arms its CGEventTap
+  after macOS disables it, so every hotkey dies silently until the app restarts.
+  `run_onchange_after_build-rustcast.sh.tmpl` calls `.build-rustcast.sh` during apply,
+  re-running when the submodule commit or a patch changes. Keep the submodule pristine
+  and carry local changes as `patches/rustcast-*.patch`; an uncommitted edit in the
+  submodule would not survive a fresh `chezmoi init` on another machine. The app is
+  ad-hoc signed, so macOS asks for Accessibility again after a signature change.
+  `auto_update = false` in the config template is load-bearing: otherwise rustcast
+  replaces this build with an upstream release and the bug comes back.
 
 ## Bootstrapping a new machine (reference, not a routine task)
 

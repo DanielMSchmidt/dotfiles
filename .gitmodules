@@ -1,0 +1,3 @@
+[submodule "vendor/rustcast"]
+	path = vendor/rustcast
+	url = https://github.com/MystikoLab/rustcast.git

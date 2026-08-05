@@ -6,9 +6,13 @@
 # shell commands). Keep this in sync with the app's default config if it updates.
 # Go template ({{ "{{" }} ... {{ "}}" }}): the hue paths are rendered absolute
 # so rustcast (launched by macOS, minimal PATH) can find the script.
-# auto_update is ON. If a future version adds config fields, this file may need
-# them too, or rustcast silently drops the shells. To recover: move this file
-# aside, relaunch rustcast to regenerate its default, then re-merge the shells.
+# auto_update is OFF: /Applications/Rustcast.app is built from the pinned checkout in
+# vendor/rustcast, which carries a local patch (the event tap is re-armed when macOS
+# disables it, otherwise every hotkey dies silently). Letting rustcast update itself
+# would replace that build with an upstream release and reintroduce the bug. To take a
+# new upstream version: update the submodule, re-run ./.build-rustcast.sh, and re-check
+# that this file still covers every top-level field the new version expects — if one is
+# missing, rustcast silently falls back to defaults and drops the shell commands.
 
 toggle_hotkey = "SUPER+SPACE"
 clipboard_hotkey = "SUPER+SHIFT+C"
@@ -27,7 +31,7 @@ search_dirs = ["~"]
 blacklist = []
 log_path = "/tmp/rustcast.log"
 debounce_delay = 300
-auto_update = true
+auto_update = false
 restore_input_source_on_close = true
 
 # --- Spotify (macOS AppleScript — no API credentials needed) -----------------
@@ -213,6 +217,24 @@ command = "osascript -e 'tell application \"System Events\" to shut down'"
 icon_path = "/System/Applications/System Settings.app/Contents/Resources/SystemSettings.icns"
 alias = "System: Shut Down"
 alias_lc = "shutdown"
+
+# --- rustcast itself ---------------------------------------------------------
+# Restarting rustcast from inside rustcast: the relaunch has to outlive the
+# process that spawned it. `nohup ... &` detaches it, so when pkill takes the app
+# down the helper is orphaned to launchd and keeps running. It then waits for the
+# old process to actually disappear (up to ~10s) before `open`, otherwise
+# LaunchServices just focuses the dying instance instead of starting a new one.
+# `pgrep/pkill -x` match the executable name exactly, so the helper — running as
+# `sh` — never matches itself. Tested against a freshly applied config: the
+# SIGTERM from pkill does *not* make rustcast flush its stale in-memory config
+# over the file, so this is a safe way to pick up a `chezmoi apply`. (The file's
+# mtime does move — that is the new instance re-serializing what it read.)
+
+[[shells]]
+command = "nohup sh -c 'for i in $(seq 50); do pgrep -x rustcast >/dev/null || break; sleep 0.2; done; open -a /Applications/Rustcast.app' >/dev/null 2>&1 & pkill -x rustcast"
+icon_path = "/Applications/Rustcast.app/Contents/Resources/icon.icns"
+alias = "Rustcast: Restart"
+alias_lc = "restart rustcast"
 
 [buffer_rules]
 clear_on_hide = true

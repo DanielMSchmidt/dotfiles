@@ -3,6 +3,10 @@ CLAUDE.md
 settings.json
 claude-configs
 .claude/**
+# Vendored upstream source built locally (rustcast) and the patches applied to it;
+# build inputs, never deployed to $HOME.
+vendor
+patches
 
 {{ if ne .chezmoi.os "darwin" }}
 dot_config/fish/conf.d/1password.fish
