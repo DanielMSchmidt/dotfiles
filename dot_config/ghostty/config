@@ -1,0 +1,12 @@
+# theme = catppuccin-frappe
+theme = cyberpunk
+font-family = "Hack Nerd Font Mono"
+font-size = 16
+working-directory = inherit
+
+# Move between splits on the current tab with cmd+shift+arrow
+# (cmd+alt+arrow keeps working too; it is the Ghostty default)
+keybind = super+shift+arrow_left=goto_split:left
+keybind = super+shift+arrow_right=goto_split:right
+keybind = super+shift+arrow_up=goto_split:up
+keybind = super+shift+arrow_down=goto_split:down
