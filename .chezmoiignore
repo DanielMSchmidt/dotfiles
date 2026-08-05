@@ -1,14 +1,18 @@
+# Patterns here are matched against the TARGET path relative to $HOME — never
+# against the source filename. So an entry for dot_config/foo silently matches
+# nothing, and an entry for .claude/** would suppress dot_claude/ rather than
+# the source-dir .claude/. (The source .claude/ needs no entry at all: chezmoi
+# already skips every source entry whose name begins with a dot.)
 README.md
 CLAUDE.md
 settings.json
 claude-configs
-.claude/**
 # Notes for the vicinae script commands; the launcher itself ignores .md files,
 # but there is no reason to ship it to $HOME either.
 .local/share/vicinae/scripts/README.md
 
 {{ if ne .chezmoi.os "darwin" }}
-dot_config/fish/conf.d/1password.fish
+.config/fish/conf.d/1password.fish
 Library/LaunchAgents/com.danielschmidt.ollama.plist
 # macOS-only launcher/snippet tools (espanso + vicinae). vicinae does run on
 # Linux, but these commands are all AppleScript/pmset/osascript.
@@ -18,12 +22,11 @@ Library/Application Support/espanso
 {{ end }}
 
 {{ if not .isWorkComputer }}
-dot_pi/agent/packages/terraform-workflow
+.pi/agent/packages/terraform-workflow
 {{ end }}
 
 {{ if .isWorkComputer }}
 # Local-LLM stack is personal-only; the work machine uses the Bedrock/Pi cloud stack.
-# NB: .chezmoiignore patterns match TARGET paths, so use the resolved names.
 .config/opencode/opencode.json
 Library/LaunchAgents/com.danielschmidt.ollama.plist
 {{ end }}

@@ -31,6 +31,11 @@
 	editor = vim
 	pager = less -F -X
 	excludesFile = ~/.gitignore
+	# Built-in filesystem monitor (git >= 2.37) plus the untracked cache. Both
+	# are about `git status` on the large work monorepos — without them every
+	# status walks the whole tree.
+	fsmonitor = true
+	untrackedCache = true
 [push]
 	default = upstream
 	autoSetupRemote = true
@@ -42,6 +47,21 @@
 [rebase]
 	autosquash = true
 	autoStash = true
+# Record conflict resolutions and replay them automatically. Worth it because
+# nearly every alias above rebases (rb, rbmain, ud, cofurf), so the same
+# conflict otherwise gets re-resolved by hand on every pass over a stack.
+[rerere]
+	enabled = true
+	autoUpdate = true
+[fetch]
+	prune = true
+	pruneTags = true
+[merge]
+	# Show the common ancestor in conflict hunks, not just the two sides.
+	conflictStyle = zdiff3
+[diff]
+	algorithm = histogram
+	colorMoved = default
 [remote "origin"]
     fetch = +refs/pull/*/head:refs/remotes/origin/pr/*
 [init]

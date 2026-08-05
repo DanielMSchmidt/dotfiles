@@ -6,6 +6,9 @@
 [hooks.read-source-state.pre]
     command = ".local/share/chezmoi/.install-prerequisites.sh"
 
+# Off deliberately. This repo is public, so an automatic commit-and-push on
+# every source-writing command (chezmoi add / re-add / edit) would publish a
+# change before there is any chance to read the diff. Commit by hand.
 [git]
-    autoCommit = true
-    autoPush = true
+    autoCommit = false
+    autoPush = false

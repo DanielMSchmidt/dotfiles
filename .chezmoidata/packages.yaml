@@ -1,10 +1,19 @@
 packages:
     universal:
         taps:
+            # Every tap referenced by a fully-qualified brew or cask below
+            # belongs here. Leaving one out happens to work — brew auto-taps a
+            # fully-qualified name — but then the profile that does not declare
+            # it silently depends on that fallback.
             - "1password/tap"
-            - "git-duet/tap"
+            - "anomalyco/tap"
+            - "arthur-ficial/tap"
+            - "charmbracelet/tap"
             - "danielmschmidt/homebrew-tap"
+            - "git-duet/tap"
+            - "stripe/stripe-cli"
         brews:
+            - "anomalyco/tap/opencode"
             - "arthur-ficial/tap/apfel"
             - "bash"
             - "bat"
@@ -89,19 +98,17 @@ packages:
             - "jethrokuan/z"
     work:
         taps:
-            - "anomalyco/tap"
+            - "bufbuild/buf"
             - "hashicorp/internal"
             - "hashicorp/releng"
             - "hashicorp/security"
             - "hashicorp/tap"
             - "warrensbox/tap"
         brews:
-            - "anomalyco/tap/opencode"
             - "ansible"
             - "awscli"
             - "bufbuild/buf/buf"
             - "delve"
-            - "gnupg"
             - "hashicorp/internal/docker-credential-doormat"
             - "hashicorp/internal/tfcdev"
             - "hashicorp/releng/bob"
@@ -127,27 +134,16 @@ packages:
             - "npm:pi-bedrock-mantle@1.0.2"
             - "./packages/terraform-workflow"
 
+    # Only what universal does not already provide — the profile lists are
+    # added to universal, never instead of it.
     private:
         taps:
-            - "anomalyco/tap"
-            - "arthur-ficial/tap"
-            - "stripe/stripe-cli"
             - "yakitrak/yakitrak"
         brews:
-            - "anomalyco/tap/opencode"
-            - "arthur-ficial/tap/apfel"
-            - "bash"
-            - "bat"
-            - "chezmoi"
             - "cloudflared"
             - "ollama"
             - "pkgconf"
-            - "rtk"
             - "sdl2_image"
-            - "stripe/stripe-cli/stripe"
-            - "typescript-language-server"
-            - "typst"
-            - "vhs"
         casks:
             - "claude-code"
             - "notion"

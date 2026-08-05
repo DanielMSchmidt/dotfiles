@@ -1,0 +1,9 @@
+# Targets to delete from $HOME on apply.
+#
+# Ghostty loads ~/.config/ghostty/config AND the macOS-native
+# ~/Library/Application Support/com.mitchellh.ghostty/config, then merges them.
+# Keeping both duplicated every list-valued key — `ghostty +show-config` showed
+# font-family twice — and let the two copies drift, so the split-navigation
+# keybinds only ever reached one of them. ~/.config/ghostty/config is the single
+# source now; this drops the leftover copy.
+Library/Application Support/com.mitchellh.ghostty/config

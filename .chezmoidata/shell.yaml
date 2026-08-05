@@ -40,16 +40,12 @@ shell:
         universal:
             - "$HOME/.local/bin"
             - "$HOME/.cargo/bin"
-            - "$HOME/.n/bin"
 
     env:
         universal:
             - { name: "LANG", value: "en_US.UTF-8" }
             - { name: "LC_ALL", value: "en_US.UTF-8" }
             - { name: "EDITOR", value: "/usr/bin/vim" }
-
-            # node: `n` version manager prefix (see the n-install docs)
-            - { name: "N_PREFIX", value: "$HOME/.n" }
 
             # go: let mise place `go install` binaries on PATH
             - { name: "MISE_GO_SET_GOBIN", value: "true" }

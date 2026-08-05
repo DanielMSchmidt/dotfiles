@@ -10,9 +10,9 @@ directly — edit the source here and apply.
 - **Agents must never run `chezmoi` themselves** (no `apply`, `diff`, `init`,
   `execute-template`, `re-add`, etc.). Edit the source files, then **ask the user
   to run the chezmoi command** and report back. Rationale: `chezmoi` triggers an
-  interactive pre-hook (1Password sign-in prompt) and `autoCommit`/`autoPush`, so
-  it must stay under the user's control. Validate template/JSON changes with other
-  tools instead (e.g. a strict JSON parser, or rendering the branch manually).
+  interactive pre-hook (1Password sign-in prompt), so it must stay under the
+  user's control. Validate template/JSON changes with other tools instead (e.g.
+  a strict JSON parser, or rendering the branch manually).
 - Edit source files in this repo, then run `chezmoi apply` to deploy. Never edit
   the applied copy under `$HOME` (it will be overwritten on the next apply).
 - Preview before applying: `chezmoi diff` (all) or `chezmoi diff ~/.config/fish`.
@@ -20,9 +20,13 @@ directly — edit the source here and apply.
 - **Secrets are never committed in plaintext.** They come from 1Password at apply
   time via template functions (`onepasswordRead`, `onepassword`). `op` must be
   signed in for templated files and package installs to render.
-- git `autoCommit` and `autoPush` are **on** (`.chezmoi.toml.tmpl`): chezmoi's own
-  source-writing commands commit and push automatically. Manual edits still need a
-  normal `git commit`, but assume the working tree is expected to stay clean.
+- git `autoCommit` and `autoPush` are **off** (`.chezmoi.toml.tmpl`). This repo is
+  public, so nothing here publishes itself: every commit and push is manual and
+  gets a chance to be read first. Expect the working tree to carry real changes.
+- **Trunk-based development only.** Commit to `main`; there are no feature
+  branches and no PR review step. If something does end up on a branch, merge it
+  back to `main` promptly rather than letting it live there — so do not create a
+  branch out of habit just because a change is large.
 
 ## chezmoi naming conventions (how source names map to `$HOME`)
 
@@ -37,9 +41,22 @@ The filename encodes the target path and attributes. Common prefixes/suffixes:
   `.set-keyboard.sh`, `.update-zed-config.sh`) are chezmoi control files or
   standalone helper scripts — they are **not** applied to `$HOME`.
 
-`.chezmoiignore` lists source files that are intentionally *not* deployed (README,
-this CLAUDE.md, `claude-configs/`, `.claude/`, and OS/profile-conditional paths).
-When you add a top-level doc/helper that should not land in `$HOME`, add it here.
+`.chezmoiignore` lists paths that are intentionally *not* deployed (README, this
+CLAUDE.md, `claude-configs/`, and OS/profile-conditional paths). When you add a
+top-level doc/helper that should not land in `$HOME`, add it here.
+
+**Its patterns match the TARGET path, never the source filename**, and getting
+that wrong fails silently in both directions. A pattern written in source form
+(`dot_config/...`, `dot_pi/...`) matches nothing and the file ships anyway; a
+pattern that happens to match a real target suppresses it with no warning. Both
+had already happened here: `.claude/**` was meant for the source-dir `.claude/`
+but instead stopped `dot_claude/` from ever being applied, and
+`dot_pi/agent/packages/terraform-workflow` never excluded the work-only pi
+package from private machines. Source entries whose names begin with a dot need
+no entry at all — chezmoi skips them automatically.
+
+`.chezmoiremove` is the counterpart: target paths chezmoi should *delete* on
+apply. Use it when a file stops being managed but should not linger in `$HOME`.
 
 ## Templating
 
@@ -66,6 +83,13 @@ Work-only extras include HashiCorp taps/tools, the pi terraform-workflow package
 and Artifactory/Quay Docker logins. Keep new work-specific items behind
 `{{ if .isWorkComputer }}` guards and in the `work` package section.
 
+The profile sections are **added to** `universal`, never used instead of it, so
+an entry that appears in both is redundant — put anything both machines need in
+`universal` alone. Every tap referenced by a fully-qualified brew or cask needs
+declaring in the same section or above it; a missing tap still works, because
+brew auto-taps fully-qualified names, which is exactly why the omission goes
+unnoticed until something else breaks.
+
 ## Package management (macOS / Homebrew / mas / Fisher)
 
 Packages are **declared** in `.chezmoidata/packages.yaml`, not installed ad hoc.
@@ -77,6 +101,13 @@ Helper scripts (all take `--work | --private | --auto`, default `--auto`):
 - `./audit-packages.sh` — report installed-but-undeclared packages (read-only).
 - `./cleanup-packages.sh [--dry-run]` — remove undeclared packages.
 - `./reconcile-packages.sh` — interactively add-to-yaml or remove, per package.
+  Note that what you declare and what `brew leaves` / `brew list --cask` report
+  are often different strings for the same package — aliases (`gpg` → `gnupg`,
+  `kubectl` → `kubernetes-cli`) and upstream renames (`flux` → `flux-app`).
+  `_package-helpers.sh` resolves both via `brew info`, and deliberately keeps
+  tap-qualified names out of that batched call: one formula from an untrusted
+  tap aborts the whole call, which used to empty the alias map and report every
+  aliased package as undeclared.
 - `_package-helpers.sh` — shared library; sourced, not run directly.
 
 To add a package: edit `packages.yaml` (correct section), then `chezmoi apply`
@@ -148,7 +179,21 @@ output.
   *live* `~/.config/zed` settings back into the repo (reverse of apply) — use it
   after changing settings in the Zed UI, then commit.
 - **git** (`dot_gitconfig.tmpl`): aliases, delta pager, GPG signing (macOS),
-  `insteadOf` git@ rewrite. Signing key comes from 1Password.
+  `insteadOf` git@ rewrite. Signing key comes from 1Password. `rerere` is on
+  because most aliases here rebase; `core.fsmonitor` is on for the large work
+  monorepos.
+- **Claude Code** (`dot_claude/`): `settings.json.tmpl`, plus `CLAUDE.md` and
+  `RTK.md` (the global agent instructions — `CLAUDE.md` is just an `@RTK.md`
+  include). The template's only profile-dependent keys are the model and the
+  work-machine Bedrock/doormat pair; everything else is shared. Note that
+  Claude Code writes this file itself (`/config`, plugin installs), so treat a
+  `chezmoi diff` here as real drift to fold back into the source rather than
+  something to overwrite blindly.
+- **Ghostty** (`dot_config/ghostty/config`): one file, deliberately. Ghostty
+  reads both `~/.config/ghostty/config` and the macOS-native
+  `~/Library/Application Support/com.mitchellh.ghostty/config` and *merges*
+  them, so a second copy silently duplicates every list-valued key (`keybind`,
+  `font-family`) and invites drift. `.chezmoiremove` deletes the old copy.
 - **pi agent** (`dot_pi/agent/`): Earendil pi coding-agent config + a work-only
   `terraform-workflow` extension package (guards generated-file edits and
   acceptance tests). `AGENTS.md` holds pi's dev preferences.

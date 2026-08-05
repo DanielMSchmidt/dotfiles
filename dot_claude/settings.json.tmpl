@@ -1,0 +1,77 @@
+{
+{{ if .isWorkComputer -}}
+    "model": "us.anthropic.claude-opus-4-6-v1",
+    "awsAuthRefresh": "doormat aws cred-file add-profile -a aws_dschmidt_test -n sandbox",
+    "env": {
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+        "CLAUDE_CODE_USE_BEDROCK": "1"
+    },
+{{ else -}}
+    "model": "opus[1m]",
+    "env": {
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    },
+{{ end -}}
+    "permissions": {
+        "defaultMode": "acceptEdits",
+        "allow": [
+            "mcp__pencil",
+            "Bash(git:*)",
+            "Bash(gh:*)",
+            "Bash(cat:*)",
+            "Bash(ls:*)",
+            "Bash(find:*)",
+            "Bash(grep:*)",
+            "Bash(rg:*)",
+            "Bash(head:*)",
+            "Bash(tail:*)",
+            "Bash(wc:*)",
+            "Bash(echo:*)",
+            "Bash(which:*)",
+            "Bash(cd:*)",
+            "Bash(go:*)",
+            "Bash(pwd:*)",
+            "Bash(mkdir:*)",
+            "Bash(npm:*)",
+            "Bash(yarn:*)",
+            "Bash(pnpm:*)"
+        ],
+        "deny": []
+    },
+    "hooks": {
+        "PreToolUse": [
+            {
+                "matcher": "Bash",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "rtk hook claude"
+                    }
+                ]
+            }
+        ]
+    },
+    "enabledPlugins": {
+        "gopls-lsp@claude-plugins-official": true,
+        "rust-analyzer-lsp@claude-plugins-official": true,
+        "typescript-lsp@claude-plugins-official": true,
+        "sentry-mcp@sentry-mcp": true
+    },
+    "extraKnownMarketplaces": {
+        "sentry-mcp": {
+            "source": {
+                "source": "github",
+                "repo": "getsentry/sentry-mcp"
+            }
+        }
+    },
+    "effortLevel": "high",
+    "tui": "fullscreen",
+    "voice": {
+        "enabled": true,
+        "mode": "hold"
+    },
+    "voiceEnabled": true,
+    "agentPushNotifEnabled": true,
+    "skipDangerousModePermissionPrompt": true
+}

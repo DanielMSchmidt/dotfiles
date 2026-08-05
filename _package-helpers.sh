@@ -82,28 +82,48 @@ collect() {
 # Also populates indexed arrays: expected_brew_raw, expected_cask_raw, expected_tap_raw
 
 build_expected_sets() {
-    # Brews
+    # Brews.
+    #
+    # Only unqualified names are handed to `brew info`. A single formula from an
+    # untrusted third-party tap makes the whole batched call abort ("Refusing to
+    # load formula ... from untrusted tap"), which used to leave the alias map
+    # empty and report every aliased formula as undeclared — gnupg against a
+    # declared `gpg`, kubernetes-cli against a declared `kubectl`. Tap-qualified
+    # names carry no aliases anyway, so their basename is all we need.
     readarray -t expected_brew_raw < <(collect brews)
     declare -gA expected_brews
     if [[ ${#expected_brew_raw[@]} -gt 0 ]]; then
-        while IFS= read -r canonical; do
-            [[ -n "$canonical" ]] && expected_brews["$canonical"]=1
-        done < <(brew info --json=v2 "${expected_brew_raw[@]}" 2>/dev/null | jq -r '.formulae[].name' 2>/dev/null)
+        local unqualified_brews=()
         for raw in "${expected_brew_raw[@]}"; do
             expected_brews["${raw##*/}"]=1
+            [[ "$raw" == */* ]] || unqualified_brews+=("$raw")
         done
+        if [[ ${#unqualified_brews[@]} -gt 0 ]]; then
+            while IFS= read -r name; do
+                [[ -n "$name" ]] && expected_brews["$name"]=1
+            done < <(brew info --json=v2 "${unqualified_brews[@]}" 2>/dev/null |
+                jq -r '.formulae[] | .name, (.aliases // [])[], (.oldnames // [])[]' 2>/dev/null)
+        fi
     fi
 
-    # Casks
+    # Casks. Same batching rule as brews, plus `old_tokens` to cover upstream
+    # renames: a machine that installed f.lux before it was renamed still
+    # reports `flux` in `brew list --cask` while packages.yaml declares the
+    # current `flux-app`.
     readarray -t expected_cask_raw < <(collect casks)
     declare -gA expected_casks
     if [[ ${#expected_cask_raw[@]} -gt 0 ]]; then
-        while IFS= read -r token; do
-            [[ -n "$token" ]] && expected_casks["$token"]=1
-        done < <(brew info --cask --json=v2 "${expected_cask_raw[@]}" 2>/dev/null | jq -r '.casks[].token' 2>/dev/null)
+        local unqualified_casks=()
         for raw in "${expected_cask_raw[@]}"; do
             expected_casks["$raw"]=1
+            [[ "$raw" == */* ]] || unqualified_casks+=("$raw")
         done
+        if [[ ${#unqualified_casks[@]} -gt 0 ]]; then
+            while IFS= read -r token; do
+                [[ -n "$token" ]] && expected_casks["$token"]=1
+            done < <(brew info --cask --json=v2 "${unqualified_casks[@]}" 2>/dev/null |
+                jq -r '.casks[] | .token, (.old_tokens // [])[]' 2>/dev/null)
+        fi
     fi
 
     # Taps
