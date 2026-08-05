@@ -36,13 +36,29 @@
 	// session left off.
 	"pop_to_root_on_close": true,
 
+	// Escape closes the launcher outright. The default ("navigate_back") only
+	// pops one view, so escaping out of a nested command took several presses.
+	"escape_key_behavior": "close_window",
+
+	// These slots are the macOS appearance, not the theme's own lightness, so the
+	// launcher follows the system between the two.
+	//
+	// dark: dracula is the closest built-in to what the terminal and the editor
+	// run — ghostty's cyberpunk and Zed's SynthWave 84 Dark are both purple-black
+	// with neon pink/cyan accents, and dracula's #FF79C6 / #8BE9FD land almost on
+	// top of them.
+	//
+	// light: catppuccin-latte, chosen to keep that accent family rather than to
+	// match any other app — nothing else here has a light mode. Its magenta and
+	// cyan carry the same chroma as dracula's (60/31 vs 61/29 in Lab), so the
+	// accents hold their intensity across the switch instead of washing out.
 	"theme": {
 		"dark": {
-			"name": "vicinae-dark",
+			"name": "dracula",
 			"icon_theme": "auto"
 		},
 		"light": {
-			"name": "vicinae-dark",
+			"name": "catppuccin-latte",
 			"icon_theme": "auto"
 		}
 	},

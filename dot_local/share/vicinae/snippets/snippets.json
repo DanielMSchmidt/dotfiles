@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Go: Printf value with expression name",
+    "keyword": "fmtv",
+    "content": "fmt.Printf(\"\\n\\t {clipboard} --> %#v\\n\", {clipboard})"
+  },
+  {
+    "name": "Go: stack trace fenced by label",
+    "keyword": "fmttrace",
+    "content": "fmt.Println(\"===== {clipboard} ======\")\ndebug.PrintStack()\nfmt.Println(\"===== {clipboard} (END) ======\")"
+  },
+  {
+    "name": "Go: dump graph Dot() output",
+    "keyword": "fmtgraph",
+    "content": "fmt.Println(\"vvvvvvvv {clipboard} vvvvvvvv\")\nfmt.Println(string(g.Dot(nil)))\nfmt.Println(\"======= {clipboard} =======\")\n"
+  },
+  {
+    "name": "Terraform: tflog.Warn value with expression name",
+    "keyword": "tflogv",
+    "content": "tflog.Warn(ctx, fmt.Sprintf(\"{clipboard} --> %#v\", {clipboard}))"
+  }
+]

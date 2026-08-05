@@ -215,12 +215,13 @@ submodule, no `patches/`, no `run_onchange_*build*` script, no ad-hoc signing,
 and no `auto_update = false` to keep an upstream release from clobbering a local
 build.
 
-Two managed surfaces:
+Three managed surfaces:
 
 | source | target | what |
 | --- | --- | --- |
 | `dot_config/vicinae/settings.json` | `~/.config/vicinae/settings.json` | hotkeys, theme, window |
 | `dot_local/share/vicinae/scripts/` | `~/.local/share/vicinae/scripts/` | the custom commands |
+| `dot_local/share/vicinae/snippets/snippets.json` | `~/.local/share/vicinae/snippets/` | the text-expansion snippets |
 
 **settings.json is read as JSONC but written back as plain JSON.** vicinae's
 settings GUI re-serializes the whole file, which strips the comments. If that
@@ -228,6 +229,20 @@ happens, re-apply from the source. Same hazard rustcast's `config.toml` had, but
 unlike rustcast vicinae does *not* silently fall back to defaults when a
 top-level key is missing — it merges a partial config over the built-in
 defaults and ignores unknown keys, so this file only needs to carry deviations.
+
+**snippets.json is written by vicinae too**, by the Create/Edit Snippet forms,
+so it drifts the same way settings.json does — reconcile rather than overwrite.
+Its schema is undocumented: a flat array of `{name, keyword, content}`, with
+`{clipboard}`, `{cursor}`, `{argument}`, `{date}`, `{uuid}` and `{shell}` usable
+inside `content`. Typing a `keyword` in any application expands it in place,
+which needs Accessibility (`MacosSnippetServer` installs an event tap) and
+`input_server.enabled`.
+
+Beware that **vicinae is completely silent about this file**: started against
+deliberately corrupt JSON it logged no error, left the file untouched, and
+carried on. Unlike settings.json it is also not watched, so a change needs a
+restart. There is therefore no way to confirm a snippet edit from the logs —
+verify with Manage Snippets, or by typing the keyword.
 
 Things worth knowing about the config:
 
