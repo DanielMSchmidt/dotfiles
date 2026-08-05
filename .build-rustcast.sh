@@ -81,7 +81,20 @@ cp -fp "$SRC_DIR/target/release/rustcast" "$BUILD_DIR/$APP_NAME/Contents/MacOS/"
 echo "==> Signing (ad-hoc)"
 codesign --force --deep --sign - "$BUILD_DIR/$APP_NAME"
 
+cdhash_of() { codesign -d -r- "$1" 2>/dev/null | grep -o 'H"[0-9a-f]*"' | tr -d 'H"'; }
+
 if [ "$install_app" = true ]; then
+  # Replacing the bundle costs the Accessibility grant (ad-hoc signing means the
+  # designated requirement is a bare cdhash), so don't touch it when the build is
+  # byte-identical to what is already installed -- which is the common case, since
+  # an unchanged patch and submodule produce an identical binary.
+  if [ -d "$INSTALL_PATH" ] &&
+     [ -n "$(cdhash_of "$BUILD_DIR/$APP_NAME")" ] &&
+     [ "$(cdhash_of "$BUILD_DIR/$APP_NAME")" = "$(cdhash_of "$INSTALL_PATH")" ]; then
+    echo "==> $INSTALL_PATH is already this exact build; leaving it in place"
+    exit 0
+  fi
+
   echo "==> Installing to $INSTALL_PATH"
   pkill -x rustcast || true
   # Wait for the old instance to exit so LaunchServices starts the new binary.
