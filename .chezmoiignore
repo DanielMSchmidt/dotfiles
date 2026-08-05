@@ -14,9 +14,8 @@ claude-configs
 {{ if ne .chezmoi.os "darwin" }}
 .config/fish/conf.d/1password.fish
 Library/LaunchAgents/com.danielschmidt.ollama.plist
-# macOS-only launcher/snippet tools (espanso + vicinae). vicinae does run on
-# Linux, but these commands are all AppleScript/pmset/osascript.
-Library/Application Support/espanso
+# vicinae does run on Linux, but these commands are all AppleScript/pmset/
+# osascript, and the snippets are Go/Terraform helpers for the work machine.
 .config/vicinae
 .local/share/vicinae
 {{ end }}

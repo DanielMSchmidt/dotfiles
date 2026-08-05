@@ -65,7 +65,6 @@ packages:
             - "1password-cli"
             - "caffeine"
             - "cmake-app"
-            - "espanso"
             - "flux-app"
             - "font-hack"
             - "font-hack-nerd-font"

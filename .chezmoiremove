@@ -7,3 +7,9 @@
 # keybinds only ever reached one of them. ~/.config/ghostty/config is the single
 # source now; this drops the leftover copy.
 Library/Application Support/com.mitchellh.ghostty/config
+
+# espanso, replaced by vicinae's built-in snippets. Dropping the source files
+# alone would leave both of these behind, since chezmoi does not delete what it
+# merely stopped managing. The second is the symlink that pointed at the first.
+.config/espanso
+Library/Application Support/espanso
