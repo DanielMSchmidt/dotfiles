@@ -73,6 +73,7 @@ packages:
             - "rectangle-pro"
             - "spotify"
             - "thaw"
+            - "vicinae"
             - "zed"
         mas:
             - name: "Focus To-Do"

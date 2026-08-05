@@ -19,7 +19,7 @@ set -euo pipefail
 CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/hue/scenes.conf"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hue"
 CRED_FILE="$STATE_DIR/credentials.json"
-DEVICETYPE="rustcast#$(hostname -s 2>/dev/null || echo mac)"
+DEVICETYPE="vicinae#$(hostname -s 2>/dev/null || echo mac)"
 
 notify() {
   echo "$1"

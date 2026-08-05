@@ -155,16 +155,98 @@ output.
 - **claude-configs/terraform/**: reference CLAUDE.md + agent config for the
   HashiCorp Terraform repo. Not deployed by chezmoi (it's ignored); it's a
   drop-in for that project.
-- **rustcast** (`vendor/rustcast` submodule + `patches/`): built from source, *not*
-  installed from the Homebrew cask — the released build never re-arms its CGEventTap
-  after macOS disables it, so every hotkey dies silently until the app restarts.
-  `run_onchange_after_build-rustcast.sh.tmpl` calls `.build-rustcast.sh` during apply,
-  re-running when the submodule commit or a patch changes. Keep the submodule pristine
-  and carry local changes as `patches/rustcast-*.patch`; an uncommitted edit in the
-  submodule would not survive a fresh `chezmoi init` on another machine. The app is
-  ad-hoc signed, so macOS asks for Accessibility again after a signature change.
-  `auto_update = false` in the config template is load-bearing: otherwise rustcast
-  replaces this build with an upstream release and the bug comes back.
+- **vicinae** — the launcher (⌘Space). Plain Homebrew cask; nothing is built from
+  source. See "Launcher (vicinae)" below.
+
+## Launcher (vicinae)
+
+[vicinae](https://github.com/vicinaehq/vicinae) is the ⌘Space launcher, installed
+as the `vicinae` cask. It replaced rustcast, which had to be vendored and patched
+because its released build never re-armed its CGEventTap after macOS disabled it
+(every hotkey died silently until the app restarted). vicinae's
+`macos-global-shortcut-backend` handles `kCGEventTapDisabledByTimeout` /
+`ByUserInput` itself, so the whole vendor/patch/build apparatus is gone: no
+submodule, no `patches/`, no `run_onchange_*build*` script, no ad-hoc signing,
+and no `auto_update = false` to keep an upstream release from clobbering a local
+build.
+
+Two managed surfaces:
+
+| source | target | what |
+| --- | --- | --- |
+| `dot_config/vicinae/settings.json` | `~/.config/vicinae/settings.json` | hotkeys, theme, window |
+| `dot_local/share/vicinae/scripts/` | `~/.local/share/vicinae/scripts/` | the custom commands |
+
+**settings.json is read as JSONC but written back as plain JSON.** vicinae's
+settings GUI re-serializes the whole file, which strips the comments. If that
+happens, re-apply from the source. Same hazard rustcast's `config.toml` had, but
+unlike rustcast vicinae does *not* silently fall back to defaults when a
+top-level key is missing — it merges a partial config over the built-in
+defaults and ignores unknown keys, so this file only needs to carry deviations.
+
+Things worth knowing about the config:
+
+- **Modifier names are counter-intuitive on macOS.** `cmd`/`command`/`ctrl`/
+  `control` all mean ⌘; `super`/`meta`/`windows` mean ⌃; `alt`/`opt`/`option`
+  mean ⌥. (Qt swaps Control and Meta on macOS and vicinae's global-shortcut
+  backend maps straight through.) Use `cmd+space`, not `super+space`.
+- The launcher toggle is `global_shortcuts.toggle`. Per-command global shortcuts
+  are *not* there — they live at
+  `providers.<provider>.entrypoints.<entrypoint>.shortcut`, which is where the
+  clipboard-history binding (⌘⇧C) sits. `keybinds` is a different thing again:
+  in-window navigation only, never global.
+- ⌘Space is Spotlight's by default; it only reaches vicinae because Spotlight's
+  shortcut is disabled in System Settings › Keyboard › Keyboard Shortcuts.
+- Clipboard history, app launching, file search, window switching, calculator,
+  snippets, volume and the power actions are all **built in** — no extensions or
+  separate daemons. Configure them as entrypoints under `providers` (`alias` for
+  a short name to type, `shortcut` for a global binding, `preferences` for the
+  command's own settings) rather than reimplementing them as scripts.
+- Start-at-login is a macOS login item that vicinae registers itself; there is
+  no config key for it.
+- rustcast's `search_url` (fall back to a Google search for an unmatched query)
+  has no config equivalent. The nearest thing is a Quicklink from the built-in
+  `shortcut` extension, added to `fallbacks` — but Quicklinks live in vicinae's
+  local database, not in `settings.json`, so they cannot be declared here and
+  have to be created in the GUI.
+
+### Custom commands are script commands
+
+Every custom action is a Raycast-format script command — an executable with
+`@vicinae.*` metadata in comments. `dot_local/share/vicinae/scripts/README.md`
+documents the format, the mode/icon/keyword fields, and why every script starts
+with `#!/bin/zsh` (LaunchServices gives vicinae a minimal `PATH`; `~/.zshenv` is
+what puts Homebrew's `jq`/`curl` back on it). Current set:
+
+- `hue/` — 21 scripts, one per room × `bright|chill|off`, each a one-liner over
+  `~/.local/bin/hue`. Rooms come from `dot_config/hue/scenes.conf`; adding a row
+  there also needs three new scripts here.
+- `spotify/` — play/pause, next, previous via AppleScript. No client id, no OAuth
+  token to refresh, and it drives whatever is playing locally.
+- `system/` — just `sleep-display`. rustcast's Sleep / Lock / Restart / Shut Down
+  shell-outs are **gone**, replaced by the built-in `power` entrypoints, which
+  are strictly better on macOS: `power:lock` calls `SACLockScreenImmediate()`
+  rather than `open -a ScreenSaverEngine` (which only locks if Lock Screen ›
+  "Require password after screen saver begins" is Immediately), and the others
+  send the same `loginwindow` Apple Events natively instead of through
+  `osascript`. Nothing built in sleeps only the display, hence the one script.
+- `vicinae/` — restart vicinae (rarely needed: it watches `settings.json` and
+  rescans the script directories on change).
+
+vicinae rescans on directory change and every 15 minutes, so an edit is live
+without a restart. A script that fails to parse is skipped *silently* — if a new
+command does not show up, check `schemaVersion`/`title` and note that
+`@raycast.*` and `@vicinae.*` keys cannot be mixed in one file.
+
+### Not extensions, and why
+
+There is no Hue extension in vicinae's store, and Raycast's `hue` extension is
+absent from vicinae's `raycast/compat.json` tracker (so: untested) while pulling
+`xstate`, `bonjour-service` mDNS discovery and the Hue v2 SSE stream. It is also
+the wrong shape — browse-and-select views instead of one-shot actions. Writing a
+native extension would mean an `npm install && npm run build` inside
+`chezmoi apply` and a rebuild on every vicinae API bump, to replace a 40-line
+shell script that already works. Reassess if the store gains a Hue extension.
 
 ## Bootstrapping a new machine (reference, not a routine task)
 

@@ -3,17 +3,18 @@ CLAUDE.md
 settings.json
 claude-configs
 .claude/**
-# Vendored upstream source built locally (rustcast) and the patches applied to it;
-# build inputs, never deployed to $HOME.
-vendor
-patches
+# Notes for the vicinae script commands; the launcher itself ignores .md files,
+# but there is no reason to ship it to $HOME either.
+.local/share/vicinae/scripts/README.md
 
 {{ if ne .chezmoi.os "darwin" }}
 dot_config/fish/conf.d/1password.fish
 Library/LaunchAgents/com.danielschmidt.ollama.plist
-# macOS-only launcher/snippet tools (espanso + rustcast)
+# macOS-only launcher/snippet tools (espanso + vicinae). vicinae does run on
+# Linux, but these commands are all AppleScript/pmset/osascript.
 Library/Application Support/espanso
-.config/rustcast
+.config/vicinae
+.local/share/vicinae
 {{ end }}
 
 {{ if not .isWorkComputer }}
