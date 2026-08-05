@@ -1,0 +1,13 @@
+# ~/.bash_profile — login bash shells.
+#
+# bash reads exactly one of .bash_profile / .bash_login / .profile for login
+# shells and .bashrc for interactive non-login shells, so this file pulls in
+# both to give every bash the same environment.
+
+if [ -r "$HOME/.profile" ]; then
+    . "$HOME/.profile"
+fi
+
+if [ -r "$HOME/.bashrc" ]; then
+    . "$HOME/.bashrc"
+fi

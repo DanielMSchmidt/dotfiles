@@ -1,0 +1,45 @@
+# ~/.config/shell/interactive.sh — bash/zsh interactive extras.
+#
+# Sourced from ~/.bashrc and ~/.zshrc, after ~/.config/shell/env.sh. Everything
+# here is allowed to be slow or to shell out, because it only runs for shells a
+# human is typing into. Anything a script or an agent needs belongs in env.sh.
+#
+# Deliberately no aliases, prompt or keybindings — fish stays the primary
+# interactive shell and those live in dot_config/fish/.
+
+case $- in
+    *i*) ;;
+    *) return 0 ;;
+esac
+
+# Which shell are we in? Both mise and op generate shell-specific init code.
+if [ -n "${ZSH_VERSION:-}" ]; then
+    __dotfiles_shell="zsh"
+elif [ -n "${BASH_VERSION:-}" ]; then
+    __dotfiles_shell="bash"
+else
+    __dotfiles_shell=""
+fi
+
+# mise: full activation replaces the shims env.sh put on PATH, so runtimes
+# switch automatically on cd, exactly like conf.d/mise.fish does for fish.
+{{ if eq .chezmoi.os "darwin" -}}
+if [ -n "$__dotfiles_shell" ] && [ -x /opt/homebrew/bin/mise ]; then
+    eval "$(/opt/homebrew/bin/mise activate "$__dotfiles_shell")"
+fi
+{{ else -}}
+if [ -n "$__dotfiles_shell" ] && command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate "$__dotfiles_shell")"
+fi
+{{ end }}
+# 1Password CLI completions
+if [ -n "$__dotfiles_shell" ] && command -v op >/dev/null 2>&1; then
+    eval "$(op completion "$__dotfiles_shell")"
+fi
+
+unset __dotfiles_shell
+
+# Load the default ssh key into the agent, quietly, same as config.fish does.
+if [ -r "$HOME/.ssh/id_rsa" ]; then
+    ssh-add -q "$HOME/.ssh/id_rsa" 2>/dev/null || true
+fi

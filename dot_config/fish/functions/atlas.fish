@@ -1,16 +1,6 @@
-set -x ATLAS_PATH $HOME/work/hashicorp/atlas
-set -x AGENT_PATH $HOME/work/hashicorp/tfc-agent
-set -x TERRAFORM_PATH $HOME/work/hashicorp/terraform
-set -x TERRAFORM_CREDENTIALS_FILE $HOME/.terraform.d/credentials.tfrc.json
-
-set -x _TFC_AGENT_STACK_COMPONENTS_ENABLED 1
-
-set -x ATLAS_ORG_NAME hashicorp
-
-# Name of the agent pool to use. Override by exporting ATLAS_AGENT_POOL_NAME.
-if not set -q ATLAS_AGENT_POOL_NAME
-    set -gx ATLAS_AGENT_POOL_NAME dschmidt-ap
-end
+# ATLAS_PATH, AGENT_PATH, TERRAFORM_PATH, TERRAFORM_CREDENTIALS_FILE,
+# ATLAS_ORG_NAME, ATLAS_AGENT_POOL_NAME and _TFC_AGENT_STACK_COMPONENTS_ENABLED
+# live in .chezmoidata/shell.yaml so bash and zsh get them too.
 
 function atlas_hostname -d "Outputs the atlas host name"
     if set -q ATLAS_HOSTNAME
@@ -107,19 +97,8 @@ function agent_build_docker -d "Builds the agent docker container"
     cd $HOME/work/hashicorp/tfc-agent && LD_FLAGS="-X 'github.com/hashicorp/tfc-agent/internal/development.terraformCliPath=/terraform/bin/terraform' -X 'github.com/hashicorp/tfc-agent/internal/development.tfpolicyPluginPath=/tfpolicy/bin/tfpolicy-plugin'" make docker && cd $CURRENT_DIR
 end
 
-# Port Jaeger exposes for OTLP/gRPC on the host (see jaeger_start).
-set -x JAEGER_OTLP_PORT 4317
-
-# Host ports for the OpenTelemetry Collector that sits in front of Jaeger and
-# Prometheus. The agent sends all OTLP signals here; the collector fans traces
-# out to Jaeger and exposes metrics for Prometheus to scrape.
-set -x OTEL_COLLECTOR_OTLP_PORT 4319
-set -x OTEL_COLLECTOR_PROM_PORT 8889
-set -x PROMETHEUS_PORT 9090
-
-# Shared Docker network so the agent, collector, Jaeger and Prometheus can talk
-# to each other by container name (avoids the flaky host.docker.internal hop).
-set -x OTEL_NETWORK tfc-otel
+# JAEGER_OTLP_PORT, OTEL_COLLECTOR_OTLP_PORT, OTEL_COLLECTOR_PROM_PORT,
+# PROMETHEUS_PORT and OTEL_NETWORK live in .chezmoidata/shell.yaml.
 
 function _otel_network_ensure -d "Creates the shared OTel docker network if it doesn't exist yet"
     docker network inspect $OTEL_NETWORK >/dev/null 2>&1; or docker network create $OTEL_NETWORK >/dev/null

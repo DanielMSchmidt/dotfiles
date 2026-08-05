@@ -1,0 +1,13 @@
+# ~/.zprofile — login zsh shells.
+#
+# ~/.zshenv has already sourced env.sh by the time this runs (and env.sh is
+# guarded against loading twice), so this only needs to cover the case where
+# something bypassed .zshenv.
+#
+# This replaces the hand-written `eval "$(/opt/homebrew/bin/brew shellenv)"`
+# that used to live here; env.sh now sets HOMEBREW_PREFIX and friends without
+# forking a subprocess.
+
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi

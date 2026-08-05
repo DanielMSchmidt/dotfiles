@@ -1,1 +1,0 @@
-set -x MISE_GO_SET_GOBIN true

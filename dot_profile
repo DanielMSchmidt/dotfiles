@@ -1,0 +1,7 @@
+# ~/.profile — login shells for sh, and for bash via ~/.bash_profile.
+#
+# Must stay POSIX: /bin/sh reads this too.
+
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi

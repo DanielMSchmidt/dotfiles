@@ -1,0 +1,11 @@
+# ~/.zshenv — read by *every* zsh invocation, including `zsh -c` and scripts.
+#
+# This is the most important hook in the POSIX setup: it is the only startup
+# file zsh reads for non-interactive, non-login shells, which is exactly how
+# agents and tooling open a shell. Keep it to env.sh — no output, nothing slow.
+#
+# fish remains the primary interactive shell; see CLAUDE.md ("Shell environment").
+
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi

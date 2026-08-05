@@ -83,10 +83,65 @@ To add a package: edit `packages.yaml` (correct section), then `chezmoi apply`
 (re-runs the install script because the data hash changes). See the
 `manage-packages` skill.
 
+## Shell environment (fish + bash + zsh)
+
+Fish is the primary interactive shell, but every exported variable and PATH
+entry is shared with bash and zsh so a script — or an agent opening a shell —
+resolves the same binaries. **`.chezmoidata/shell.yaml` is the single source of
+truth.** Two files are generated from it and must never be edited directly:
+
+| generated file | shell |
+| --- | --- |
+| `dot_config/fish/conf.d/00-env.fish.tmpl` | fish |
+| `dot_config/shell/env.sh.tmpl` | bash, zsh, sh |
+
+To add or change a variable or a PATH entry, edit `shell.yaml` and re-apply —
+never add a bare `set -x` to a fish file or an `export` to a POSIX file.
+`env` entries render in listed order, so a later value may reference an earlier
+one; `env_defaults` entries are only applied when not already set.
+
+Supporting files:
+
+- `dot_config/shell/interactive.sh.tmpl` — bash/zsh-only extras that are allowed
+  to be slow: `mise activate`, `op` completions, `ssh-add`. The fish counterpart
+  is `config.fish.tmpl` + `conf.d/mise.fish.tmpl`.
+- `dot_config/shell/private_secrets.sh.tmpl` — the one part of the environment
+  *not* in `shell.yaml`, because that file is committed in plaintext. Rendered at
+  0600 from 1Password; keep it in sync with `conf.d/secrets.fish.tmpl`.
+- `dot_zshenv`, `dot_zprofile`, `dot_zshrc`, `dot_profile`, `dot_bash_profile`,
+  `dot_bashrc` — thin entry points that source the two files above. `env.sh`
+  guards against loading twice, so overlapping entry points are harmless.
+
+Things worth knowing:
+
+- **`~/.zshenv` is the load-bearing one.** zsh reads it for *every* invocation,
+  including `zsh -c`, which is how most tooling opens a shell.
+- **`bash -c` reads no startup file at all** — that is bash's design, not a gap
+  in this repo. A non-interactive, non-login bash only has what it inherited.
+  Use `bash -lc` (or `zsh -c`) when the environment has to be there.
+- **mise must outrank Homebrew.** mise shims are prepended ahead of everything
+  in `env.sh`, and `conf.d/00-env.fish` is named `00-` so it loads before
+  `conf.d/mise.fish` and cannot push mise's paths back. Otherwise `node`
+  silently resolves to the Homebrew build instead of the pinned version.
+- **Homebrew deliberately outranks `$HOME/.local/bin`**, which is the order fish
+  has always had; flipping it would change which `claude` binary wins.
+- `fish_user_paths` is set *globally* by `00-env.fish`, and any pre-existing
+  *universal* value is erased once. Don't use `fish_add_path`/`set -Ua` — a
+  universal value persists across machines and silently outranks the declared
+  list.
+- Aliases, functions and the prompt stay fish-only by design. Only environment
+  is shared.
+
+Since agents must not run `chezmoi`, validate template changes by rendering them
+with Go's `text/template` directly (parse + execute against `shell.yaml`), then
+`sh -n` / `zsh -n` / `bash -n` the POSIX output and `fish --no-execute` the fish
+output.
+
 ## Other managed surfaces
 
-- **fish** (`dot_config/fish/`): `config.fish.tmpl`, `conf.d/*` (per-tool env,
-  some `.tmpl` for secrets), `functions/*`. Fish is the default shell.
+- **fish** (`dot_config/fish/`): `config.fish.tmpl`, `conf.d/*` (aliases and
+  functions; env comes from `00-env.fish`), `functions/*`. Fish is the default
+  shell — see "Shell environment" above.
 - **mise** (`dot_config/mise/config.toml.tmpl`): runtime versions (node, go, rust,
   ruby/python on work). Installed via `mise install -y` inside the package script.
 - **Zed** (`dot_config/zed/`): editor config. `./update-zed-config.sh` pulls the

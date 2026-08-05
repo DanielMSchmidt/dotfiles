@@ -1,0 +1,132 @@
+# Shell environment shared by fish, bash and zsh.
+#
+# This is the single source of truth for exported environment variables and
+# PATH entries. Two files are generated from it and must never be edited
+# directly:
+#
+#   dot_config/fish/conf.d/00-env.fish.tmpl  ->  ~/.config/fish/conf.d/00-env.fish
+#   dot_config/shell/env.sh.tmpl             ->  ~/.config/shell/env.sh
+#
+# fish stays the primary interactive shell (aliases, functions, prompt live in
+# dot_config/fish/). The point of this file is that a bash or zsh shell — the
+# kind an agent or a script opens — resolves the same binaries and sees the
+# same variables.
+#
+# `env` entries are emitted in the order listed, so a later value may reference
+# an earlier one (e.g. TFSTACKS_TERRAFORM_BINARY uses $TERRAFORM_PATH). $HOME is
+# always available. `env_defaults` entries are only set when not already
+# exported, so they can be overridden per-shell.
+#
+# Secrets do not belong here — they live in
+# dot_config/shell/private_secrets.sh.tmpl (0600, filled from 1Password).
+
+shell:
+    # PATH entries prepended ahead of the system defaults, highest priority
+    # first: the `darwin` tier is emitted before the `universal` tier.
+    #
+    # mise is layered on top of both by its own activation/shims, so a
+    # mise-managed runtime always beats a Homebrew copy of the same tool.
+    # Homebrew in turn deliberately stays ahead of the per-user dirs, which is
+    # the order fish has always had — flipping it would change which `claude`
+    # wins (/opt/homebrew/bin/claude vs ~/.local/bin/claude).
+    path:
+        # Platform package manager
+        darwin:
+            - "/opt/homebrew/bin"
+            - "/opt/homebrew/sbin"
+            - "/usr/local/bin"
+            - "/usr/local/sbin"
+        # Per-user install dirs
+        universal:
+            - "$HOME/.local/bin"
+            - "$HOME/.cargo/bin"
+            - "$HOME/.n/bin"
+
+    env:
+        universal:
+            - { name: "LANG", value: "en_US.UTF-8" }
+            - { name: "LC_ALL", value: "en_US.UTF-8" }
+            - { name: "EDITOR", value: "/usr/bin/vim" }
+
+            # node: `n` version manager prefix (see the n-install docs)
+            - { name: "N_PREFIX", value: "$HOME/.n" }
+
+            # go: let mise place `go install` binaries on PATH
+            - { name: "MISE_GO_SET_GOBIN", value: "true" }
+
+            # Don't phone home from terraform/cdktf tooling
+            - { name: "CHECKPOINT_DISABLE", value: "true" }
+            - {
+                  name: "CDKTF_EXPERIMENTAL_PROVIDER_SCHEMA_CACHE_PATH",
+                  value: "$HOME/.cdktf/schema-cache",
+              }
+
+            # Local LLM (Ollama). AI_LOCAL_MODEL is the model the ai/qc/commitmsg
+            # helpers use; the OLLAMA_* values tune `ollama serve` for a 16GB
+            # Apple Silicon machine and are mirrored in the LaunchAgent plist.
+            - { name: "AI_LOCAL_MODEL", value: "qwen3.5:9b" }
+            - { name: "OLLAMA_FLASH_ATTENTION", value: "1" }
+            - { name: "OLLAMA_KV_CACHE_TYPE", value: "q8_0" }
+            - { name: "OLLAMA_CONTEXT_LENGTH", value: "32768" }
+
+            # Terraform working copies driven by the tf* helpers
+            - { name: "TERRAFORM_PATH", value: "$HOME/work/hashicorp/terraform" }
+            - {
+                  name: "TERRAFORM_PATH_PRIVATE",
+                  value: "$HOME/work/hashicorp/terraform-private",
+              }
+            - {
+                  name: "TERRAFORM_CREDENTIALS_FILE",
+                  value: "$HOME/.terraform.d/credentials.tfrc.json",
+              }
+            - {
+                  name: "TFSTACKS_TERRAFORM_BINARY",
+                  value: "$TERRAFORM_PATH/bin/terraform",
+              }
+            - { name: "TFSTACKS_LOG_LEVEL", value: "trace" }
+
+            # terraform-policy-plugin. TFPOLICY_BINARY is read by tfc-agent's
+            # `make bin-local-dev` so the agent links the locally built plugin
+            # instead of downloading a release.
+            - {
+                  name: "TERRAFORM_POLICY_PLUGIN_PATH",
+                  value: "$HOME/work/hashicorp/terraform-policy-plugin",
+              }
+            - {
+                  name: "TFPOLICY_BINARY",
+                  value: "$TERRAFORM_POLICY_PLUGIN_PATH/bin/tfpolicy-plugin",
+              }
+
+            # atlas / tfc-agent
+            - { name: "ATLAS_PATH", value: "$HOME/work/hashicorp/atlas" }
+            - { name: "AGENT_PATH", value: "$HOME/work/hashicorp/tfc-agent" }
+            - { name: "ATLAS_ORG_NAME", value: "hashicorp" }
+            - { name: "_TFC_AGENT_STACK_COMPONENTS_ENABLED", value: "1" }
+
+            # Observability stack ports. The agent sends OTLP to the collector,
+            # which fans traces out to Jaeger and metrics out to Prometheus.
+            # OTEL_NETWORK is the shared docker network they all join.
+            - { name: "JAEGER_OTLP_PORT", value: "4317" }
+            - { name: "OTEL_COLLECTOR_OTLP_PORT", value: "4319" }
+            - { name: "OTEL_COLLECTOR_PROM_PORT", value: "8889" }
+            - { name: "PROMETHEUS_PORT", value: "9090" }
+            - { name: "OTEL_NETWORK", value: "tfc-otel" }
+
+        darwin:
+            # The exported half of `brew shellenv`, so nothing has to fork brew
+            # at shell startup to learn where the prefix is.
+            - { name: "HOMEBREW_PREFIX", value: "/opt/homebrew" }
+            - { name: "HOMEBREW_CELLAR", value: "/opt/homebrew/Cellar" }
+            - { name: "HOMEBREW_REPOSITORY", value: "/opt/homebrew" }
+
+        work:
+            - { name: "AWS_PROFILE", value: "sandbox" }
+
+        private: []
+
+    # Set only when not already exported, so a shell can override them.
+    env_defaults:
+        universal:
+            - { name: "ATLAS_AGENT_POOL_NAME", value: "dschmidt-ap" }
+        work: []
+        private: []

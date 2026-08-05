@@ -1,0 +1,12 @@
+# ~/.zshrc — interactive zsh shells.
+#
+# Environment already came from ~/.zshenv; this adds the parts that only make
+# sense when a human is typing (mise activation, completions).
+
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi
+
+if [ -r "$HOME/.config/shell/interactive.sh" ]; then
+    . "$HOME/.config/shell/interactive.sh"
+fi

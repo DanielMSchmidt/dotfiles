@@ -1,0 +1,14 @@
+# ~/.bashrc — interactive bash shells (and anything that sources it).
+#
+# NB: bash reads *no* startup file for `bash -c '...'`. A non-interactive,
+# non-login bash therefore only has the environment it inherited from its
+# parent. Use `bash -lc '...'` when that matters — or `zsh -c '...'`, which
+# always reads ~/.zshenv.
+
+if [ -r "$HOME/.config/shell/env.sh" ]; then
+    . "$HOME/.config/shell/env.sh"
+fi
+
+if [ -r "$HOME/.config/shell/interactive.sh" ]; then
+    . "$HOME/.config/shell/interactive.sh"
+fi

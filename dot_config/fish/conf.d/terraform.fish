@@ -1,8 +1,9 @@
 ## Terraform
-
-# Set a default terraform path for my local terraform repo
-set -x TERRAFORM_PATH_PRIVATE $HOME/work/hashicorp/terraform-private
-set -x TERRAFORM_PATH $HOME/work/hashicorp/terraform
+#
+# TERRAFORM_PATH, TERRAFORM_PATH_PRIVATE, TERRAFORM_POLICY_PLUGIN_PATH,
+# TFPOLICY_BINARY and the TFSTACKS_* variables all live in
+# .chezmoidata/shell.yaml so bash and zsh get them too. Only the build helpers
+# below are fish-specific.
 
 ## Normal Builds
 # Execute local terraform binary
@@ -36,12 +37,6 @@ alias tfwp="fish -c 'cd $TERRAFORM_PATH_PRIVATE && gow -v -c build -v -ldflags=\
 
 ## Stacks
 
-# Set my tf binary to the local one
-set -x TFSTACKS_TERRAFORM_BINARY $TERRAFORM_PATH/bin/terraform
-
-# set debug level
-set -x TFSTACKS_LOG_LEVEL trace
-
 # Execute local tfstacks binary
 alias scli="$HOME/work/hashicorp/terraform-stacks-cli/dist/tfstacks"
 # Build tfstacks binary
@@ -51,15 +46,6 @@ alias sclib="fish -c 'cd $HOME/work/hashicorp/terraform-stacks-cli && make build
 alias dlvtfrpc="fish -c 'cd $TERRAFORM_PATH && dlv attach (ps | grep 'terraform rpcapi' | head -1 | awk '{ print $1 }')'"
 
 ## Terraform Policy Plugin
-
-# Set a default path for my local terraform policy plugin repo
-set -x TERRAFORM_POLICY_PLUGIN_PATH $HOME/work/hashicorp/terraform-policy-plugin
-
-# Point the tfc-agent development override at the locally built (linux) policy
-# plugin binary. `make bin-local-dev` in tfc-agent reads TFPOLICY_BINARY and
-# links this binary into the agent instead of downloading the tfpolicy plugin
-# release, so the agent uses the plugin from $TERRAFORM_POLICY_PLUGIN_PATH.
-set -x TFPOLICY_BINARY $TERRAFORM_POLICY_PLUGIN_PATH/bin/tfpolicy-plugin
 
 # Build terraform policy plugin binary (native OS, e.g. to run/test on this host)
 function tpb -d "Build local terraform policy plugin binary"

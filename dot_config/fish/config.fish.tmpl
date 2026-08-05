@@ -1,40 +1,19 @@
 set -g theme_display_ruby no
 
-set -x LC_ALL en_US.UTF-8
-set -x LANG en_US.UTF-8
-
-set -x PATH /usr/local/sbin $PATH
-{{ if eq .chezmoi.os "darwin" -}}
-set -x PATH /opt/homebrew/bin/ $PATH
-set -x PATH /Users/dschmidt/bin $PATH
-{{ end -}}
-set -x EDITOR /usr/bin/vim
+# PATH and exported environment now come from conf.d/00-env.fish, which is
+# generated from .chezmoidata/shell.yaml so bash and zsh get the same values.
+# Do not add `set -x`/`fish_add_path` lines here — edit the YAML instead.
 
 ssh-add -q ~/.ssh/id_rsa 2>/dev/null; or true
-
-# Load oh-my-fish configuration.
-contains /usr/local/bin $fish_user_paths; or set -Ua fish_user_paths /usr/local/bin
-{{ if eq .chezmoi.os "darwin" -}}
-contains /usr/local/opt/ruby/bin $fish_user_paths; or set -Ua fish_user_paths /usr/local/opt/ruby/bin
-contains /usr/local/opt/terraform@0.12/bin $fish_user_paths; or set -Ua fish_user_paths /usr/local/opt/terraform@0.12/bin
-{{ end -}}
 
 # Dancing helper
 source $HOME/.config/fish/functions/atlas.fish 2>/dev/null; or true
 source $HOME/.config/fish/functions/dancing.fish 2>/dev/null; or true
 source $HOME/.config/fish/functions/development.fish 2>/dev/null; or true
 
-{{ if eq .chezmoi.os "darwin" -}}
-set -g fish_user_paths /usr/local/opt/openjdk/bin $fish_user_paths
-fish_add_path /opt/homebrew/sbin
-{{ end -}}
-
 if type -q op
     op completion fish | source
 end
-
-# Created by `pipx` on 2024-06-17 08:22:05
-set PATH $PATH $HOME/.local/bin
 
 # Tide customisation
 set --universal tide_right_prompt_items status cmd_duration context jobs direnv node python rustc ruby go gcloud distrobox toolbox terraform aws nix_shell crystal elixir zig time
@@ -42,5 +21,4 @@ set --universal tide_right_prompt_items status cmd_duration context jobs direnv 
 {{ if .isWorkComputer -}}
 # disabled for now
 # eval "$(tfcdev rc)"
-set -x AWS_PROFILE "sandbox"
 {{ end -}}
