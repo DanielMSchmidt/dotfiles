@@ -1,22 +1,54 @@
 [
   {
+    "id": "snp-44632fc06e41",
     "name": "Go: Printf value with expression name",
-    "keyword": "fmtv",
-    "content": "fmt.Printf(\"\\n\\t {clipboard} --> %#v\\n\", {clipboard})"
+    "data": {
+      "text": "fmt.Printf(\"\\\\n\\\\t {clipboard} --> %#v\\\\n\", {clipboard})"
+    },
+    "createdAt": 1785969032,
+    "expansion": {
+      "keyword": "fmtv",
+      "apps": [],
+      "word": true
+    }
   },
   {
+    "id": "snp-2b610ab77a5d",
     "name": "Go: stack trace fenced by label",
-    "keyword": "fmttrace",
-    "content": "fmt.Println(\"===== {clipboard} ======\")\ndebug.PrintStack()\nfmt.Println(\"===== {clipboard} (END) ======\")"
+    "data": {
+      "text": "fmt.Println(\"===== {clipboard} ======\")\ndebug.PrintStack()\nfmt.Println(\"===== {clipboard} (END) ======\")"
+    },
+    "createdAt": 1785969032,
+    "expansion": {
+      "keyword": "fmttrace",
+      "apps": [],
+      "word": true
+    }
   },
   {
+    "id": "snp-fbe8c02b6ac9",
     "name": "Go: dump graph Dot() output",
-    "keyword": "fmtgraph",
-    "content": "fmt.Println(\"vvvvvvvv {clipboard} vvvvvvvv\")\nfmt.Println(string(g.Dot(nil)))\nfmt.Println(\"======= {clipboard} =======\")\n"
+    "data": {
+      "text": "fmt.Println(\"vvvvvvvv {clipboard} vvvvvvvv\")\nfmt.Println(string(g.Dot(nil)))\nfmt.Println(\"======= {clipboard} =======\")\n"
+    },
+    "createdAt": 1785969032,
+    "expansion": {
+      "keyword": "fmtgraph",
+      "apps": [],
+      "word": true
+    }
   },
   {
+    "id": "snp-bb075f60698f",
     "name": "Terraform: tflog.Warn value with expression name",
-    "keyword": "tflogv",
-    "content": "tflog.Warn(ctx, fmt.Sprintf(\"{clipboard} --> %#v\", {clipboard}))"
+    "data": {
+      "text": "tflog.Warn(ctx, fmt.Sprintf(\"{clipboard} --> %#v\", {clipboard}))"
+    },
+    "createdAt": 1785969032,
+    "expansion": {
+      "keyword": "tflogv",
+      "apps": [],
+      "word": true
+    }
   }
 ]

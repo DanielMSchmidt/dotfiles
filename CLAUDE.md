@@ -232,17 +232,39 @@ defaults and ignores unknown keys, so this file only needs to carry deviations.
 
 **snippets.json is written by vicinae too**, by the Create/Edit Snippet forms,
 so it drifts the same way settings.json does — reconcile rather than overwrite.
-Its schema is undocumented: a flat array of `{name, keyword, content}`, with
-`{clipboard}`, `{cursor}`, `{argument}`, `{date}`, `{uuid}` and `{shell}` usable
-inside `content`. Typing a `keyword` in any application expands it in place,
-which needs Accessibility (`MacosSnippetServer` installs an event tap) and
-`input_server.enabled`.
+Its schema is undocumented and there is no file-based import, so the entries
+here were reverse-engineered from what vicinae itself writes:
 
-Beware that **vicinae is completely silent about this file**: started against
-deliberately corrupt JSON it logged no error, left the file untouched, and
-carried on. Unlike settings.json it is also not watched, so a change needs a
-restart. There is therefore no way to confirm a snippet edit from the logs —
-verify with Manage Snippets, or by typing the keyword.
+```json
+{
+  "id": "snp-44632fc06e41",
+  "name": "Go: Printf value with expression name",
+  "data": { "text": "fmt.Printf(\"\\\\n\\\\t {clipboard} --> %#v\\\\n\")" },
+  "expansion": { "keyword": "fmtv", "apps": [], "word": true },
+  "createdAt": 1785969032
+}
+```
+
+`id` is required and must carry the `snp-` prefix. `data` is a tagged union —
+`text` or `file` — so the body is **not** a `content` key. `keyword` is nested
+under `expansion`, never top-level; put it at the top level and the snippet
+loads but never expands. `word` is the form's "expand as word". `{clipboard}`,
+`{cursor}`, `{argument}`, `{date}`, `{uuid}` and `{shell}` work inside the text,
+and typing the keyword expands it in any application, which needs Accessibility
+(`MacosSnippetServer` installs an event tap) and `input_server.enabled`.
+
+**A literal backslash has to be doubled.** vicinae consumes `\` as an escape
+when expanding, so a stored `\n` arrives as a bare `n` — which quietly mangles
+Go format strings. Store `\\n` to emit `\n`. Real tabs and newlines need no
+escaping and pass through untouched, so multi-line snippets are unaffected.
+
+Beware that **vicinae is silent about this file when it cannot use it**: started
+against deliberately corrupt JSON it logged no error, left the file untouched,
+and carried on; the same is true of a well-formed file in the wrong shape.
+Unlike settings.json it is not watched, so a change needs a restart. The one
+reliable signal is that vicinae *rewrites* the file once it has loaded it,
+filling in defaults like `apps` and `word` — if a hand-written entry never
+grows those keys, it was never read. Otherwise verify by typing the keyword.
 
 Things worth knowing about the config:
 

@@ -13,3 +13,10 @@ Library/Application Support/com.mitchellh.ghostty/config
 # merely stopped managing. The second is the symlink that pointed at the first.
 .config/espanso
 Library/Application Support/espanso
+
+# The work-only pi package, on private machines. .chezmoiignore stops chezmoi
+# managing it, but an earlier apply had already deployed it — and chezmoi never
+# deletes what it merely stopped managing.
+{{ if not .isWorkComputer }}
+.pi/agent/packages/terraform-workflow
+{{ end }}
