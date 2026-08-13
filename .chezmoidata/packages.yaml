@@ -24,6 +24,7 @@ packages:
             - "danielmschmidt/homebrew-tap/go-again"
             - "danielmschmidt/homebrew-tap/pomobar"
             - "docker"
+            - "docker-credential-helper"
             - "duti"
             - "editorconfig"
             - "ffmpeg"
