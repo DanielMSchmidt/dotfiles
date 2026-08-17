@@ -305,6 +305,9 @@ what puts Homebrew's `jq`/`curl` back on it). Current set:
   there also needs three new scripts here.
 - `spotify/` — play/pause, next, previous via AppleScript. No client id, no OAuth
   token to refresh, and it drives whatever is playing locally.
+- `time/` — convert a time in another time zone (for example, `4.30 ist`) to
+  the Mac's local time. Common abbreviations and IANA zone names are accepted;
+  `IST` means Indian Standard Time.
 - `system/` — just `sleep-display`. rustcast's Sleep / Lock / Restart / Shut Down
   shell-outs are **gone**, replaced by the built-in `power` entrypoints, which
   are strictly better on macOS: `power:lock` calls `SACLockScreenImmediate()`
