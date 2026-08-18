@@ -35,6 +35,10 @@ The filename encodes the target path and attributes. Common prefixes/suffixes:
 - `dot_foo` → `~/.foo` (e.g. `dot_gitconfig` → `~/.gitconfig`)
 - `private_foo` → applied with `0600` perms (e.g. `private_dot_ssh/` → `~/.ssh/`)
 - `foo.tmpl` → rendered as a Go template (chezmoi funcs + 1Password) before writing
+- `symlink_foo` → `~/foo` is created as a *symlink* whose target is the file's
+  contents (whitespace-trimmed), rather than a copy of them. Combines with
+  `.tmpl`, which is how the target path gets written as
+  `{{ .chezmoi.sourceDir }}/…`. See `.symlinked/` and "Launcher (vicinae)".
 - `run_once_*.sh` → script run once ever, `run_onchange_*.sh` → run when its
   *contents* change, `run_after_*` / `run_before_*` → ordering relative to file apply
 - Leading-dot files (`.chezmoi*`, `.install-prerequisites.sh`, `.startup.sh`,
@@ -215,23 +219,31 @@ submodule, no `patches/`, no `run_onchange_*build*` script, no ad-hoc signing,
 and no `auto_update = false` to keep an upstream release from clobbering a local
 build.
 
-Three managed surfaces:
+Three managed surfaces, two of them **symlinked rather than copied**:
 
 | source | target | what |
 | --- | --- | --- |
-| `dot_config/vicinae/settings.json` | `~/.config/vicinae/settings.json` | hotkeys, theme, window |
-| `dot_local/share/vicinae/scripts/` | `~/.local/share/vicinae/scripts/` | the custom commands |
-| `dot_local/share/vicinae/snippets/snippets.json` | `~/.local/share/vicinae/snippets/` | the text-expansion snippets |
+| `.symlinked/vicinae/config/` ← `dot_config/symlink_vicinae.tmpl` | `~/.config/vicinae` → symlink | hotkeys, theme, window |
+| `.symlinked/vicinae/snippets/` ← `dot_local/share/vicinae/symlink_snippets.tmpl` | `~/.local/share/vicinae/snippets` → symlink | the text-expansion snippets |
+| `dot_local/share/vicinae/scripts/` | `~/.local/share/vicinae/scripts/` | the custom commands (copied) |
+
+vicinae writes the first two itself, so they are linked straight into the repo
+and an in-app change *is* a repo change — no reconciling, but expect settings
+churn in `git status`. `.symlinked/vicinae/README.md` covers the mechanism, its
+consequences, and the settings.json rationale that used to live in the file's
+own comments. The scripts are copies because
+vicinae never writes them and `executable_` keeps their mode bits right.
 
 **settings.json is read as JSONC but written back as plain JSON.** vicinae's
-settings GUI re-serializes the whole file, which strips the comments. If that
-happens, re-apply from the source. Same hazard rustcast's `config.toml` had, but
-unlike rustcast vicinae does *not* silently fall back to defaults when a
-top-level key is missing — it merges a partial config over the built-in
-defaults and ignores unknown keys, so this file only needs to carry deviations.
+settings GUI re-serializes the whole file, which strips the comments — which is
+exactly why the source file is now plain JSON with its prose kept alongside
+instead. Don't reintroduce comments into it. Same hazard rustcast's
+`config.toml` had, but unlike rustcast vicinae does *not* silently fall back to
+defaults when a top-level key is missing — it merges a partial config over the
+built-in defaults and ignores unknown keys, so this file only needs to carry
+deviations.
 
-**snippets.json is written by vicinae too**, by the Create/Edit Snippet forms,
-so it drifts the same way settings.json does — reconcile rather than overwrite.
+**snippets.json is written by vicinae too**, by the Create/Edit Snippet forms.
 Its schema is undocumented and there is no file-based import, so the entries
 here were reverse-engineered from what vicinae itself writes:
 

@@ -1,0 +1,7 @@
+{{/*
+~/.config/vicinae is a symlink into this repo, not a copy, because vicinae
+rewrites settings.json itself from its settings GUI. See .symlinked/vicinae/
+README.md. chezmoi strips the surrounding whitespace, so this renders to the
+bare target path.
+*/ -}}
+{{ .chezmoi.sourceDir }}/.symlinked/vicinae/config

@@ -1,0 +1,64 @@
+{
+	"$schema": "https://vicinae.com/schemas/config.json",
+	"global_shortcuts": {
+		"toggle": "cmd+space"
+	},
+	"favorites": [
+		"clipboard:history"
+	],
+	"search_files_in_root": false,
+	"fallbacks": [
+		"files:search"
+	],
+	"pop_to_root_on_close": true,
+	"escape_key_behavior": "close_window",
+	"theme": {
+		"dark": {
+			"name": "dracula",
+			"icon_theme": "auto"
+		},
+		"light": {
+			"name": "catppuccin-latte",
+			"icon_theme": "auto"
+		}
+	},
+	"launcher_window": {
+		"material": "none"
+	},
+	"telemetry": {
+		"system_info": false
+	},
+	"providers": {
+		"clipboard": {
+			"entrypoints": {
+				"history": {
+					"shortcut": "cmd+shift+c"
+				}
+			}
+		},
+		"power": {
+			"entrypoints": {
+				"sleep": {
+					"alias": "sleep",
+					"preferences": { "confirm": false }
+				},
+				"lock": {
+					"alias": "lock",
+					"preferences": { "confirm": false }
+				},
+				"reboot": {
+					"alias": "restart",
+					"preferences": { "confirm": true }
+				},
+				"power-off": {
+					"alias": "shutdown",
+					"preferences": { "confirm": true }
+				},
+				"logout": {
+					"alias": "logout",
+					"preferences": { "confirm": true }
+				}
+			}
+		}
+	}
+}

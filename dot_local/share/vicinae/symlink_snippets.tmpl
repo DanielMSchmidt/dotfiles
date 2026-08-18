@@ -1,0 +1,8 @@
+{{/*
+~/.local/share/vicinae/snippets is a symlink into this repo, not a copy,
+because vicinae rewrites snippets.json itself from the Create/Edit Snippet
+forms. See .symlinked/vicinae/README.md. Only this subdirectory is linked —
+the rest of ~/.local/share/vicinae is the launcher's own runtime state
+(clipboard.db, vicinae.db, favicon cache) and has no business in git.
+*/ -}}
+{{ .chezmoi.sourceDir }}/.symlinked/vicinae/snippets
