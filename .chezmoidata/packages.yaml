@@ -17,7 +17,6 @@ packages:
             - "arthur-ficial/tap/apfel"
             - "bash"
             - "bat"
-            - "charmbracelet/tap/crush"
             - "chezmoi"
             - "cmake"
             - "colima"
