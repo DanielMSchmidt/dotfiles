@@ -320,7 +320,11 @@ what puts Homebrew's `jq`/`curl` back on it). Current set:
 - `time/` — convert a time in another time zone (for example, `4.30 ist`) to
   the Mac's local time. Common abbreviations and IANA zone names are accepted;
   `IST` means Indian Standard Time.
-- `system/` — just `sleep-display`. rustcast's Sleep / Lock / Restart / Shut Down
+- `system/` — `sleep-display`, plus `maximize-window` (resizes the window that
+  was focused before vicinae was summoned to fill its screen's visible frame —
+  no native-fullscreen Space; polls until vicinae has handed focus back, gets
+  the frame from NSScreen via ASObjC, and needs Accessibility). rustcast's
+  Sleep / Lock / Restart / Shut Down
   shell-outs are **gone**, replaced by the built-in `power` entrypoints, which
   are strictly better on macOS: `power:lock` calls `SACLockScreenImmediate()`
   rather than `open -a ScreenSaverEngine` (which only locks if Lock Screen ›

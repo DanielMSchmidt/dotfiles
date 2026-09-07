@@ -43,4 +43,5 @@ Before adding a script, check whether vicinae already has the command built in â
 clipboard history, app/file/window search, calculator, snippets, volume, and
 sleep/lock/reboot/power-off/log-out all are. Those are configured as entrypoints
 in `~/.config/vicinae/settings.json`, not duplicated here. `system/` holds only
-`sleep-display`, because that one has no built-in equivalent.
+`sleep-display` and `maximize-window`, because those have no built-in
+equivalent.
