@@ -31,3 +31,11 @@ Library/Application Support/espanso
 # `go install` binaries on PATH. go.fish set that same variable a second time.
 .config/fish/conf.d/golang.fish
 .config/fish/conf.d/go.fish
+
+# Two more of the same vintage. node.fish prepended $HOME/.n/bin (the `n`
+# version manager, long gone — the directory does not exist) *ahead* of
+# everything, which is precisely the position mise's shims need; had `n` ever
+# come back it would have silently outranked the pinned node. rust.fish added
+# $HOME/.cargo/bin, which shell.yaml's universal path tier already owns.
+.config/fish/conf.d/node.fish
+.config/fish/conf.d/rust.fish
