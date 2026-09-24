@@ -49,7 +49,6 @@ packages:
             - "ripgrep"
             - "rsync"
             - "rtk"
-            - "rustup"
             - "stripe/stripe-cli/stripe"
             - "tfenv"
             - "tree"
