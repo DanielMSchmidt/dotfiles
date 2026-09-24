@@ -20,3 +20,14 @@ Library/Application Support/espanso
 {{ if not .isWorkComputer }}
 .pi/agent/packages/terraform-workflow
 {{ end }}
+
+# Pre-mise fish snippets that were never managed here. golang.fish pinned
+# GOROOT to /opt/homebrew/opt/go/libexec — a Homebrew go that no longer exists
+# — so whenever mise's own GOROOT export was absent (which is exactly what
+# happens while a go install is failing) every `go` invocation died with
+# "cannot find GOROOT directory", including the version check mise runs after
+# unpacking a new toolchain. Never set GOROOT/GOPATH by hand with mise: it
+# exports both for the active version, and MISE_GO_SET_GOBIN (shell.yaml) puts
+# `go install` binaries on PATH. go.fish set that same variable a second time.
+.config/fish/conf.d/golang.fish
+.config/fish/conf.d/go.fish
