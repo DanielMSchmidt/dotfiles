@@ -1,25 +1,60 @@
 #!/bin/bash
-{{ if and (eq .chezmoi.os "darwin") (not .isWorkComputer) -}}
+{{ if eq .chezmoi.os "darwin" -}}
+{{- $profile := "private" -}}
+{{- if .isWorkComputer }}{{ $profile = "work" }}{{ end -}}
+{{- $driver := index .ollamaDriver $profile -}}
+{{- $models := concat (index .ollamaModels "universal") (index .ollamaModels $profile) -}}
 # Provision the local Ollama runtime: load the tuned launchd service and pull
-# the declared coding models. Personal machines only — the work machine uses the
-# Bedrock/Pi cloud stack.
+# the declared coding models. Both profiles run this — work gets a larger
+# driver, not a different mechanism.
 #
 # We run Ollama via a chezmoi-managed LaunchAgent
 # (~/Library/LaunchAgents/com.danielschmidt.ollama.plist) rather than
 # `brew services`, because the agents (opencode, Pi) rely on the *server's*
 # context window — they can't raise num_ctx per request — and only a plist can
 # persist OLLAMA_CONTEXT_LENGTH across reboots. The plist also pins flash
-# attention and q8 KV-cache to keep memory in budget on 16GB.
+# attention and q8 KV-cache to keep memory in budget, and on work caps the
+# number of co-resident models.
 #
 # Re-runs whenever this script's rendered content changes, including the plist
-# hash below and the model list.
+# hash below and the model list. The hash is over the plist *template*, so it
+# covers both branches' text; that is fine, because .isWorkComputer does not
+# change on a given machine.
 #
-# plist hash: {{ include "private_Library/LaunchAgents/com.danielschmidt.ollama.plist" | sha256sum }}
-# Models: {{ range .ollamaModels }}{{ . }} {{ end }}
-
+# plist hash: {{ include "private_Library/LaunchAgents/com.danielschmidt.ollama.plist.tmpl" | sha256sum }}
+#
+# Profile: {{ $profile }}
+{{ range $models }}#   {{ .id }} ({{ .size }}){{ if .tools }} [driver-capable]{{ end }} — {{ .note }}
+{{ end }}
 set -e
 
 plist="$HOME/Library/LaunchAgents/com.danielschmidt.ollama.plist"
+
+# The driver is declared twice by necessity: as ollamaDriver in packages.yaml
+# (the source of truth every template renders from) and as AI_LOCAL_MODEL in
+# shell.yaml, which cannot be a template because .chezmoidata is parsed before
+# the template engine starts. Reconcile the two rendered values here so a
+# one-sided edit fails loudly instead of leaving the ai/qc/commitmsg helpers
+# pointed at a model that was never pulled.
+driver={{ $driver | quote }}
+declared_env=
+{{ range (index .shell.env $profile) -}}
+{{ if eq .name "AI_LOCAL_MODEL" -}}
+declared_env={{ .value | quote }}
+{{ end -}}
+{{ end -}}
+if [ "$declared_env" != "$driver" ]; then
+    echo "ollama: driver mismatch for profile {{ $profile }}" >&2
+    echo "  packages.yaml ollamaDriver.{{ $profile }} = $driver" >&2
+    echo "  shell.yaml    AI_LOCAL_MODEL             = ${declared_env:-<unset>}" >&2
+    exit 1
+fi
+
+# Every model this profile should have: the universal set plus its own.
+models=(
+{{ range $models }}    {{ .id | quote }}
+{{ end -}}
+)
 
 # If the Homebrew service is running, stop it so it can't race our LaunchAgent
 # for port 11434.
@@ -36,8 +71,24 @@ for _ in $(seq 1 60); do
 done
 
 # Pull the declared models. `ollama pull` is idempotent and only downloads when
-# a model is missing or its manifest changed.
-{{ range .ollamaModels -}}
-ollama pull {{ . | quote }}
-{{ end -}}
+# a model is missing or its manifest changed. The driver goes first so an
+# interrupted run still leaves the machine with a usable agent model.
+ollama pull "$driver"
+for model in "${models[@]}"; do
+    [ "$model" = "$driver" ] || ollama pull "$model"
+done
+
+# Models are pulled but never reaped: there is no counterpart to `ollama pull`
+# here, so a model dropped from packages.yaml keeps occupying disk until it is
+# removed by hand. Report the gap rather than deleting gigabytes unprompted.
+undeclared=$(
+    comm -13 \
+        <(printf '%s\n' "${models[@]}" | sort -u) \
+        <(ollama ls 2>/dev/null | awk 'NR > 1 && NF { print $1 }' | sort -u)
+)
+if [ -n "$undeclared" ]; then
+    echo "ollama: installed but not declared in packages.yaml:"
+    printf '  %s\n' "$undeclared"
+    echo "  remove with: ollama rm <model>"
+fi
 {{ end -}}

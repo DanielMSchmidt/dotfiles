@@ -16,6 +16,15 @@ set -eu
 current="$(cat)"
 [ -n "$current" ] || current='{}'
 
+{{/* Local models come from .chezmoidata/packages.yaml so this file and
+     models.json.tmpl cannot disagree about what exists. On work the local
+     provider is *registered but not default*: the approved Copilot/Bedrock
+     frontier models stay the default and Ollama is there for offline or
+     keep-it-on-the-box work, selectable with pi's model picker. */}}
+{{- $profile := "private" -}}
+{{- if .isWorkComputer }}{{ $profile = "work" }}{{ end -}}
+{{- $local := concat (index .ollamaModels "universal") (index .ollamaModels $profile) -}}
+
 printf '%s' "$current" | jq '. + {
   "externalEditor": "vim",
   "enableInstallTelemetry": false,
@@ -24,12 +33,12 @@ printf '%s' "$current" | jq '. + {
   "defaultModel": "gpt-5.6-terra",
   "defaultThinkingLevel": "high",
   "packages": [{{ range $i, $p := .packages.work.pi }}{{ if $i }}, {{ end }}{{ $p | quote }}{{ end }}],
-  "enabledModels": ["github-copilot/gpt-5.6-terra", "github-copilot/gpt-5.6-sol", "github-copilot/gpt-5.6-luna", "bedrock-mantle/openai.gpt-5.6-terra", "bedrock-mantle/openai.gpt-5.6-sol", "bedrock-mantle/openai.gpt-5.6-luna"],
+  "enabledModels": ["github-copilot/gpt-5.6-terra", "github-copilot/gpt-5.6-sol", "github-copilot/gpt-5.6-luna", "bedrock-mantle/openai.gpt-5.6-terra", "bedrock-mantle/openai.gpt-5.6-sol", "bedrock-mantle/openai.gpt-5.6-luna"{{ range $local }}, {{ printf "ollama/%s" .id | quote }}{{ end }}],
 {{- else }}
   "defaultProvider": "ollama",
-  "defaultModel": "qwen3.5:9b",
+  "defaultModel": {{ index .ollamaDriver "private" | quote }},
   "packages": [{{ range $i, $p := .packages.private.pi }}{{ if $i }}, {{ end }}{{ $p | quote }}{{ end }}],
-  "enabledModels": ["ollama/qwen3.5:9b", "ollama/qwen2.5-coder:3b"],
+  "enabledModels": [{{ range $i, $m := $local }}{{ if $i }}, {{ end }}{{ printf "ollama/%s" $m.id | quote }}{{ end }}],
 {{- end }}
   "compaction": {
     "enabled": true,

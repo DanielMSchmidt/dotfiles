@@ -57,10 +57,11 @@ shell:
                   value: "$HOME/.cdktf/schema-cache",
               }
 
-            # Local LLM (Ollama). AI_LOCAL_MODEL is the model the ai/qc/commitmsg
-            # helpers use; the OLLAMA_* values tune `ollama serve` for a 16GB
-            # Apple Silicon machine and are mirrored in the LaunchAgent plist.
-            - { name: "AI_LOCAL_MODEL", value: "qwen3.5:9b" }
+            # Local LLM (Ollama). These tune `ollama serve` and are mirrored in
+            # the LaunchAgent plist, which is the copy that actually matters —
+            # the server runs from launchd, not from a shell. AI_LOCAL_MODEL (the
+            # model the ai/qc/commitmsg helpers drive) is per-profile below,
+            # because the two machines run different-sized drivers.
             - { name: "OLLAMA_FLASH_ATTENTION", value: "1" }
             - { name: "OLLAMA_KV_CACHE_TYPE", value: "q8_0" }
             - { name: "OLLAMA_CONTEXT_LENGTH", value: "32768" }
@@ -118,7 +119,19 @@ shell:
         work:
             - { name: "AWS_PROFILE", value: "sandbox" }
 
-        private: []
+            # The local agent driver the ai/qc/commitmsg helpers call. This is a
+            # literal because .chezmoidata files are parsed before the template
+            # engine starts and so cannot themselves be templates. It must stay
+            # equal to `ollamaDriver.work` in packages.yaml, which is the source
+            # of truth the opencode/pi/LaunchAgent templates render from;
+            # run_after_onchange_setup-ollama.sh.tmpl fails the apply if the two
+            # disagree, so this cannot drift silently.
+            - { name: "AI_LOCAL_MODEL", value: "qwen3.6:35b-a3b-coding" }
+
+        private:
+            # Mirrors `ollamaDriver.private` in packages.yaml — see the note
+            # under `work` above.
+            - { name: "AI_LOCAL_MODEL", value: "qwen3.5:9b" }
 
     # Set only when not already exported, so a shell can override them.
     env_defaults:

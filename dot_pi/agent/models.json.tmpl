@@ -1,6 +1,13 @@
-{{ if .isWorkComputer -}}
-{}
-{{- else -}}
+{{- /* Generated from .chezmoidata/packages.yaml (ollamaModels + ollamaDriver).
+       Both profiles now register the local Ollama provider; what differs is
+       which model is declared and, in modify_settings.json.tmpl, whether it is
+       the default. `thinkingFormat: qwen-chat-template` is one of pi's accepted
+       values (see its docs/custom-provider.md) and is correct for every driver
+       here — all are Qwen chat-template models. Revisit it if a driver ever
+       moves off the Qwen family. */ -}}
+{{- $profile := "private" -}}
+{{- if .isWorkComputer }}{{ $profile = "work" }}{{ end -}}
+{{- $models := concat (index .ollamaModels "universal") (index .ollamaModels $profile) -}}
 {
   "providers": {
     "ollama": {
@@ -11,10 +18,11 @@
         "thinkingFormat": "qwen-chat-template"
       },
       "models": [
-        { "id": "qwen3.5:9b", "contextWindow": 65536, "maxTokens": 32768, "reasoning": true },
-        { "id": "qwen2.5-coder:3b", "contextWindow": 32768 }
+{{- range $i, $m := $models }}
+{{- if $i }},{{ end }}
+        { "id": {{ $m.id | quote }}, "contextWindow": 32768{{ if $m.tools }}, "maxTokens": 16384, "reasoning": true{{ end }} }
+{{- end }}
       ]
     }
   }
 }
-{{- end }}

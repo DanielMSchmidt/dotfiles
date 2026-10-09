@@ -23,9 +23,3 @@ Library/LaunchAgents/com.danielschmidt.ollama.plist
 {{ if not .isWorkComputer }}
 .pi/agent/packages/terraform-workflow
 {{ end }}
-
-{{ if .isWorkComputer }}
-# Local-LLM stack is personal-only; the work machine uses the Bedrock/Pi cloud stack.
-.config/opencode/opencode.json
-Library/LaunchAgents/com.danielschmidt.ollama.plist
-{{ end }}

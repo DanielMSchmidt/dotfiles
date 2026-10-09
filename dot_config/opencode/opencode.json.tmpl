@@ -1,0 +1,32 @@
+{{- /* Generated from .chezmoidata/packages.yaml (ollamaModels + ollamaDriver).
+       Add or retune a local model there, not here. */ -}}
+{{- $profile := "private" -}}
+{{- if .isWorkComputer }}{{ $profile = "work" }}{{ end -}}
+{{- $driver := index .ollamaDriver $profile -}}
+{{- $models := concat (index .ollamaModels "universal") (index .ollamaModels $profile) -}}
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "ollama/{{ $driver }}",
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama (local)",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+{{- range $i, $m := $models }}
+{{- if $i }},{{ end }}
+        {{ $m.id | quote }}: {
+          "name": {{ printf "%s (local)" $m.name | quote }},
+          "tools": {{ $m.tools }},
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
+        }
+{{- end }}
+      }
+    }
+  }
+}

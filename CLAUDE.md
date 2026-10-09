@@ -206,6 +206,77 @@ output.
   drop-in for that project.
 - **vicinae** — the launcher (⌘Space). Plain Homebrew cask; nothing is built from
   source. See "Launcher (vicinae)" below.
+- **Local LLM (Ollama)** — runs on *both* profiles. See "Local LLM stack" below.
+
+## Local LLM stack (Ollama)
+
+Both machines run a local coding model; only the driver differs. Everything is
+declared in `.chezmoidata/packages.yaml` under **`ollamaModels`** (per-profile,
+added to `universal` just like `packages`) and **`ollamaDriver`** (which model
+the agents default to). Every consumer renders from that data, so adding or
+swapping a model is a one-line edit there — never in a consumer config:
+
+| file | role |
+| --- | --- |
+| `private_Library/LaunchAgents/com.danielschmidt.ollama.plist.tmpl` | the server; `ollama serve` under launchd |
+| `run_after_onchange_setup-ollama.sh.tmpl` | loads the agent, pulls the declared models, reports undeclared ones |
+| `dot_config/opencode/opencode.json.tmpl`, `dot_pi/agent/models.json.tmpl`, `dot_pi/agent/modify_settings.json.tmpl` | the agent clients |
+| `settings.json` (Zed, root) | Zed's picker — the union of both profiles, see below |
+| `dot_config/fish/{conf.d/ollama.fish,functions/{ai,qc,commitmsg}.fish}` | the shell helpers, via `$AI_LOCAL_MODEL` |
+
+Things worth knowing:
+
+- **launchd, not `brew services`.** The clients read the *server's* context
+  window and cannot raise `num_ctx` per request, so `OLLAMA_CONTEXT_LENGTH` has
+  to persist across reboots — only a plist does that. It is also where flash
+  attention and the q8 KV-cache are pinned.
+- **Pick the driver on memory bandwidth, not capacity.** Decode is bounded by
+  bytes-read-per-token, so a sparse MoE beats a dense model of the same
+  footprint by close to an order of magnitude. A dense 27B at Q4 on the work
+  machine's ~150GB/s bus tops out near 8 tok/s — unusable in an agent loop —
+  while a 35B activating 3B per token stays interactive. Capacity decides what
+  *loads*; bandwidth decides whether it is usable.
+- **Fitting is about the GPU wired limit, not total RAM.** macOS caps GPU-wired
+  memory at roughly 75% of RAM (`iogpu.wired_limit_mb`), so the 36GB work
+  machine has ~27GB to spend on a 23GB driver plus its KV cache. That is why the
+  context length stays at 32768 and `OLLAMA_MAX_LOADED_MODELS` is pinned to 1
+  there: overrunning the limit does not fail, it swaps, and throughput
+  collapses. Raise the wired limit before raising the context.
+- **A working native tool-call parser is a hard requirement**, tracked as
+  `tools:` per model. This is the failure mode that actually recurs here:
+  `qwen2.5-coder:7b` was dropped for emitting tool calls as prose, and
+  `ornith:9b` was rejected for the same reason despite a better SWE-Bench score
+  — its Ollama modelfile ships without working tool calling. Benchmark rank is
+  not evidence a model can be driven by an agent.
+- **pi's `thinkingFormat` is a closed set** (`openai`, `openrouter`, `deepseek`,
+  `together`, `zai`, `qwen`, `chat-template`, `qwen-chat-template`,
+  `string-thinking`, `ant-ling` — see pi's own `docs/custom-provider.md`).
+  `qwen-chat-template` is correct only because every driver here is a Qwen
+  chat-template model; moving off the Qwen family means revisiting it.
+- **On work the local provider is registered but not default.** pi keeps the
+  approved Copilot/Bedrock models as its default and offers Ollama in the model
+  picker — local is for offline or keep-it-on-the-box work, not a replacement
+  for the cloud stack.
+- **The driver name is declared twice, deliberately.** `ollamaDriver` in
+  `packages.yaml` is the source of truth, but `AI_LOCAL_MODEL` has to be a
+  literal in `shell.yaml` because `.chezmoidata` is parsed *before* the template
+  engine starts and so cannot contain templates. The setup script compares the
+  two rendered values and fails the apply if they disagree, so this cannot drift
+  silently — but it does mean a driver change is a two-file edit.
+- **Zed's model list is the union of both profiles.** `~/.config/zed/settings.json`
+  is a symlink into this repo's root `settings.json` (Zed writes it itself), so
+  it cannot be a per-profile template. Models not pulled locally just do not
+  appear in the picker. `agent.default_model` is likewise a single shared value,
+  which is the whole reason `qwen3.5:9b` sits in `universal` rather than under
+  `private`: the default has to name a model that exists on both machines *and*
+  can emit tool calls, and the FIM model cannot. On work, switch to the larger
+  driver in the model picker — the shared default is deliberately the
+  conservative one, not the best one.
+- **Models are pulled, never reaped.** There is no counterpart to `ollama pull`,
+  so a model dropped from `packages.yaml` keeps its disk until removed by hand.
+  The setup script lists undeclared models and prints the `ollama rm` to run; it
+  deliberately does not delete gigabytes unprompted (unlike the Homebrew
+  reconciliation, which does remove).
 
 ## Launcher (vicinae)
 

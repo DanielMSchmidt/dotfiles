@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.danielschmidt.ollama</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/ollama</string>
+        <string>serve</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- A large default context is required because the agentic clients
+             (opencode, Pi) read the *server's* context window and cannot raise
+             num_ctx per request; q8 KV-cache + flash attention keep the cache
+             itself affordable. Mirrored in .chezmoidata/shell.yaml so a shell
+             sees the same values, but this is the copy that decides: the server
+             runs from launchd and never reads a shell profile. -->
+        <key>OLLAMA_CONTEXT_LENGTH</key>
+        <string>32768</string>
+        <key>OLLAMA_FLASH_ATTENTION</key>
+        <string>1</string>
+        <key>OLLAMA_KV_CACHE_TYPE</key>
+        <string>q8_0</string>
+{{- if .isWorkComputer }}
+        <!-- 36GB M3 Pro: the driver is a 23GB MoE and the default GPU wired
+             limit is only ~27GB (iogpu.wired_limit_mb, ~75% of RAM). Ollama
+             will otherwise keep several models resident at once, and admitting
+             the 1.9GB FIM model alongside the driver overruns that limit —
+             which does not fail, it swaps, and decode throughput collapses.
+             Serialise instead: one resident model, evicted on switch. The 16GB
+             machine runs a 6.6GB driver and needs no such ceiling. -->
+        <key>OLLAMA_MAX_LOADED_MODELS</key>
+        <string>1</string>
+{{- end }}
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/ollama.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/ollama.log</string>
+</dict>
+</plist>

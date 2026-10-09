@@ -794,8 +794,12 @@
             // The provider to use.
             "enable_thinking": false,
             "provider": "ollama",
-            // The model to use.
-            "model": "qwen2.5-coder:3b"
+            // The model to use. Must be a model present on BOTH machines, since
+            // this file is shared (see language_models.ollama below), and must be
+            // tool-capable to be usable from the agent panel — which is why this
+            // is the 9B baseline and not the larger work-only driver. On the work
+            // machine, switch to qwen3.6:35b-a3b-coding in the model picker.
+            "model": "qwen3.5:9b"
         },
         // Additional parameters for language model requests. When making a request to a model, parameters will be taken
         // from the last entry in this list that matches the model's provider and name. In each entry, both provider
@@ -1831,7 +1835,18 @@
         },
         "ollama": {
             "api_url": "http://localhost:11434",
+            // Union of both machines' local models, because ~/.config/zed/settings.json
+            // is a symlink straight into this repo (dot_config/zed/symlink_settings.json.tmpl)
+            // and so cannot be a per-profile template. Entries whose model is not
+            // pulled on this machine simply do not appear in the picker. The
+            // declared set per profile lives in .chezmoidata/packages.yaml.
             "available_models": [
+                {
+                    "name": "qwen3.6:35b-a3b-coding",
+                    "display_name": "Qwen3.6 35B-A3B Coding (local, work only)",
+                    "max_tokens": 32768,
+                    "supports_tools": true
+                },
                 {
                     "name": "qwen3.5:9b",
                     "display_name": "Qwen3.5 9B (local)",

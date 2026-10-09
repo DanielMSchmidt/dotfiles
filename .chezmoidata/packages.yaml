@@ -46,6 +46,7 @@ packages:
             - "kubectl"
             - "mas"
             - "mise"
+            - "ollama"
             - "ripgrep"
             - "rsync"
             - "rtk"
@@ -139,7 +140,6 @@ packages:
             - "yakitrak/yakitrak"
         brews:
             - "cloudflared"
-            - "ollama"
             - "pkgconf"
             - "sdl2_image"
         casks:
@@ -159,11 +159,67 @@ packages:
             - "npm:pi-lens"
             - "npm:pi-docparser"
 
-# Local LLM models pulled by run_onchange_setup-ollama.sh.tmpl.
-# Sized for a 16GB Apple Silicon machine:
-# - qwen3.5:9b (dense, ~6.6GB Q4) drives the agents — it has a reliable native
-#   tool-call parser, unlike qwen2.5-coder:7b which leaked tool calls as text.
-# - qwen2.5-coder:3b stays for fast autocomplete/FIM (no tool-calling needed).
+# Local LLM models pulled by run_after_onchange_setup-ollama.sh.tmpl, and the
+# single source of truth for every local-model consumer: the opencode and pi
+# provider configs and the ai/qc/commitmsg shell helpers all render from here.
+# Profile lists are ADDED to universal, exactly like `packages` above.
+#
+# `tools` records whether the model has a working native tool-call parser, i.e.
+# whether an agent may drive it. It is tracked explicitly because this is the
+# failure mode that has actually bitten here: qwen2.5-coder:7b was dropped for
+# emitting tool calls as prose, and ornith:9b was rejected for the same reason
+# despite a stronger SWE-Bench score — its Ollama modelfile ships without
+# working tool calling.
+#
+# The driver is chosen for memory *bandwidth*, not capacity. Decode speed is
+# bounded by bytes-read-per-token, so on Apple Silicon a sparse MoE beats a
+# dense model of the same footprint by close to an order of magnitude: on the
+# work machine's ~150GB/s bus a dense 27B at Q4 (18GB) tops out near 8 tok/s,
+# which is unusable in an agent loop, while a 35B model activating 3B per token
+# reads ~2.5GB and stays comfortably interactive.
+#
+# Work sizing (36GB M3 Pro): 23GB of weights against a ~27GB default GPU wired
+# limit (iogpu.wired_limit_mb, ~75% of RAM) is why the context length stays at
+# 32768 and OLLAMA_MAX_LOADED_MODELS is pinned to 1 in the LaunchAgent — a
+# second resident model would push the working set into swap and collapse
+# throughput. Raise the wired limit first if you want more context there.
+#
+# Private (16GB) stays on a dense 9B: Qwen3.6 has no 9B successor, and every
+# 3B-active MoE in this class is ~20GB, which does not fit.
 ollamaModels:
-    - "qwen2.5-coder:3b"
-    - "qwen3.5:9b"
+    universal:
+        - id: "qwen2.5-coder:3b"
+          name: "Qwen2.5 Coder 3B"
+          size: "1.9GB"
+          tools: false
+          note: "fast autocomplete/FIM"
+        # The shared tool-capable baseline, and the private machine's driver.
+        # It is universal rather than private-only so that one model is both
+        # agent-drivable *and* present on every machine — Zed's agent default
+        # has to be a single value for both profiles (see the note on Zed in
+        # CLAUDE.md), and before this it could only be the FIM model above,
+        # which cannot emit tool calls. Costs the work machine 6.6GB of disk
+        # for a model its own driver outclasses; that is the price of a default
+        # that is correct on both machines, and it doubles as a quick fallback
+        # when the 23GB driver is more than the task needs.
+        - id: "qwen3.5:9b"
+          name: "Qwen3.5 9B"
+          size: "6.6GB"
+          tools: true
+          note: "dense 9B; shared baseline"
+    work:
+        - id: "qwen3.6:35b-a3b-coding"
+          name: "Qwen3.6 35B-A3B Coding"
+          size: "23GB"
+          tools: true
+          note: "35.5B total / 3B active MoE, 256K ctx"
+    # Nothing beyond the universal set: the 9B baseline above is this machine's
+    # driver, and every 3B-active MoE in that class is ~20GB, which does not fit
+    # in 16GB.
+    private: []
+
+# The agent driver per profile — what opencode, pi and the shell helpers default
+# to. Must name an `id` declared above, and must have tools: true.
+ollamaDriver:
+    work: "qwen3.6:35b-a3b-coding"
+    private: "qwen3.5:9b"
