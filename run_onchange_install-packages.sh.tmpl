@@ -5,6 +5,7 @@
 # brew leaves: {{ output "brew" "leaves" | sha256sum }}
 # brew casks: {{ output "brew" "list" "--cask" "-1" | sha256sum }}
 # brew taps: {{ output "brew" "tap" | sha256sum }}
+# brew trust: {{ output "bash" "-c" "brew trust --json v1 2>/dev/null || true" | sha256sum }}
 # fisher plugins: {{ output "fish" "-c" "fisher list 2>/dev/null" | sha256sum }}
 
 # Generate combined Brewfile in a temp file
@@ -52,22 +53,79 @@ mas {{ .name | quote }}, id: {{ .id }}
 BREWEOF
 
 # Trust every non-official tap referenced in the Brewfile before bundling.
-# Homebrew 6.0+ refuses to load formulae/casks from untrusted taps and would
-# otherwise prompt (or fail non-interactively). `brew trust` is idempotent and
-# normalizes tap names (e.g. danielmschmidt/homebrew-tap -> danielmschmidt/tap),
-# so we derive taps from the Brewfile itself and keep trust in sync automatically.
-grep -E '^(tap|brew|cask) ' "$brewfile" | while read -r kind name _; do
+# Homebrew 7 refuses to load formulae, casks and commands from untrusted taps,
+# so an untrusted tap does not fail loudly — every tap-qualified entry above
+# resolves to nothing (`brew info anomalyco/tap/opencode` reports no tap at
+# all), `brew update` warns on every run, and a fresh machine installs the
+# wrong thing or nothing. `brew trust` is idempotent and normalizes tap names
+# (danielmschmidt/homebrew-tap -> danielmschmidt/tap), so the taps are derived
+# from the generated Brewfile and trust stays in sync with packages.yaml
+# automatically.
+#
+# Whole-tap trust is deliberately broader than the per-formula trust Homebrew
+# suggests: packages.yaml is free to declare a package by its unqualified name
+# (`vhs`, `1password-cli`), which may resolve through a tap, and per-formula
+# trust would need the qualified name the declaration does not carry. The trust
+# boundary here is the tap list in packages.yaml, which is reviewed anyway.
+#
+# Failures are reported rather than swallowed: this block spent months as a
+# silent no-op because it predated `brew trust` and hid the resulting "Unknown
+# command" behind `>/dev/null 2>&1 || true`. The trust-state hash in the header
+# is the other half of that fix — it re-runs this script if trust is ever lost.
+#
+# Deliberately `if`, not `case`: this runs under the `#!/bin/bash` shebang,
+# which on macOS is bash 3.2, and 3.2's parser cannot handle a case statement
+# inside $(...) — it reads the first pattern's `)` as the end of the command
+# substitution and dies on `;;`. Fixed in bash 4; irrelevant under the
+# Homebrew bash this repo installs, which is exactly why it is easy to miss.
+taps=$(grep -E '^(tap|brew|cask) ' "$brewfile" | while read -r kind name _; do
     name=${name//\"/}; name=${name%,}
-    case "$kind" in
-        tap) tap="$name" ;;
-        brew|cask)
-            # Only owner/tap/formula references carry a tap that needs trusting.
-            [[ "$name" == */*/* ]] || continue
-            tap="${name%/*}"
-            ;;
-    esac
-    brew trust --tap "$tap" >/dev/null 2>&1 || true
-done
+    if [[ "$kind" == tap ]]; then
+        echo "$name"
+    elif [[ "$name" == */*/* ]]; then
+        # Only owner/tap/formula references carry a tap that needs trusting.
+        echo "${name%/*}"
+    fi
+done | sort -u)
+
+if ! brew trust --json v1 >/dev/null 2>&1; then
+    echo "WARNING: this Homebrew has no \`brew trust\`; leaving taps untrusted" >&2
+else
+    while read -r tap; do
+        [[ -n "$tap" ]] || continue
+        if ! trust_out=$(brew trust --tap "$tap" 2>&1); then
+            echo "WARNING: could not trust tap $tap: $trust_out" >&2
+        fi
+    done <<< "$taps"
+
+    # Trust is reconciled, not merely granted. `brew untap` leaves a dropped
+    # tap's trust entry behind — only a tap *rename* invalidates it — so a tap
+    # removed from packages.yaml would stay trusted forever, which is exactly
+    # the trust surface that removing it was meant to shed. It also means a tap
+    # trusted by hand, or by the other profile, lingers on this machine.
+    #
+    # There is no `brew untrust`, so this goes through Homebrew's own Trust API
+    # rather than editing trust.json behind its back (it is written under a
+    # lock, with permission checks). That API is internal, so a failure here
+    # warns and carries on instead of breaking the apply.
+    # $taps is deliberately unquoted: it is a newline-separated list and the
+    # Ruby below takes the taps as ARGV.
+    # shellcheck disable=SC2086
+    if prune_out=$(brew ruby -e '
+require "trust"
+declared = ARGV.map { |n| Homebrew::Trust.target(n, type: :tap).last }
+(Homebrew::Trust.trusted_entries(:tap) - declared).each do |tap|
+  Homebrew::Trust.untrust!(:tap, tap)
+  puts "Untrusted tap not declared in packages.yaml: #{tap}"
+end
+' $taps 2>&1); then
+        if [[ -n "$prune_out" ]]; then
+            echo "$prune_out"
+        fi
+    else
+        echo "WARNING: could not prune tap trust: $prune_out" >&2
+    fi
+fi
 
 # Install packages
 {{ if .isWorkComputer -}}

@@ -434,3 +434,12 @@ There is no build/test suite. "Correct" means:
 2. For `.tmpl` edits, `chezmoi execute-template < file` renders without error.
 3. For package edits, `./audit-packages.sh` is clean after apply.
 4. `chezmoi apply --dry-run -v` succeeds.
+
+**Syntax-check a `#!/bin/bash` script with `/bin/bash -n`, not `bash -n`.**
+`bash` on PATH is the Homebrew bash 5 this repo installs; `/bin/bash` is the
+macOS system bash 3.2, and that is what the `run_*` scripts actually execute.
+Constructs bash 5 accepts and 3.2 rejects therefore pass every local check and
+fail only during `chezmoi apply`. The one that has already bitten here is a
+`case` statement inside `$(...)`: 3.2's parser reads the first pattern's `)` as
+the end of the command substitution and dies on `;;`. Use `if`/`elif` instead
+when the construct sits inside a command substitution.

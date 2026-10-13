@@ -5,10 +5,19 @@ packages:
             # belongs here. Leaving one out happens to work — brew auto-taps a
             # fully-qualified name — but then the profile that does not declare
             # it silently depends on that fallback.
-            - "1password/tap"
+            #
+            # The reverse needs checking too: this list is the trust boundary
+            # the install script feeds to `brew trust`, so an unreferenced tap
+            # is pure trust surface. Three were dropped for that reason —
+            # 1password/tap and charmbracelet/tap because their packages
+            # (1password-cli, vhs) now come from core and the tap had stopped
+            # being load-bearing without looking like it, since both are
+            # declared below by their unqualified names; yakitrak/yakitrak
+            # because nothing from it was ever declared at all. Confirm with
+            # the install receipt (`.source.tap`), not `brew info` — an
+            # untrusted tap reports no tap at all.
             - "anomalyco/tap"
             - "arthur-ficial/tap"
-            - "charmbracelet/tap"
             - "danielmschmidt/homebrew-tap"
             - "git-duet/tap"
             - "stripe/stripe-cli"
@@ -136,8 +145,8 @@ packages:
     # Only what universal does not already provide — the profile lists are
     # added to universal, never instead of it.
     private:
-        taps:
-            - "yakitrak/yakitrak"
+        # Nothing: every tap this profile needs is in universal.
+        taps: []
         brews:
             - "cloudflared"
             - "pkgconf"
