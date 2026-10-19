@@ -223,6 +223,7 @@ swapping a model is a one-line edit there — never in a consumer config:
 | `dot_config/opencode/opencode.json.tmpl`, `dot_pi/agent/models.json.tmpl`, `dot_pi/agent/modify_settings.json.tmpl` | the agent clients |
 | `settings.json` (Zed, root) | Zed's picker — the union of both profiles, see below |
 | `dot_config/fish/{conf.d/ollama.fish,functions/{ai,qc,commitmsg}.fish}` | the shell helpers, via `$AI_LOCAL_MODEL` |
+| `dot_config/fish/functions/local-llm.fish` | `local-llm off\|on\|status` — pause the server (disabled in launchd, survives reboots) and resume it |
 
 Things worth knowing:
 

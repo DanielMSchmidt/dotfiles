@@ -9,3 +9,8 @@
 
 # Quick view of resident models and their memory footprint.
 alias ollama-ps "ollama ps"
+
+# Subcommands for the pause/resume helper (functions/local-llm.fish).
+complete -c local-llm -f -n __fish_use_subcommand -a off -d "Stop the server and keep it off across reboots"
+complete -c local-llm -f -n __fish_use_subcommand -a on -d "Re-enable and start the server"
+complete -c local-llm -f -n __fish_use_subcommand -a status -d "Show whether the server is running"
