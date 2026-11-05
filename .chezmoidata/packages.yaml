@@ -32,6 +32,8 @@ packages:
             - "danielmschmidt/homebrew-tap/go-again"
             - "danielmschmidt/homebrew-tap/pomobar"
             - "docker"
+            - "docker-buildx"
+            - "docker-compose"
             - "docker-credential-helper"
             - "duti"
             - "editorconfig"

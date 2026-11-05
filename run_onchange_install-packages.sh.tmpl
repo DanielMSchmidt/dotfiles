@@ -155,7 +155,12 @@ rm -f "$brewfile"
 # running cluster; only a fresh/un-configured machine pays the provision cost.
 k8s_enabled=$(awk '/^kubernetes:/{f=1} f&&/enabled:/{print $2; exit}' "$HOME/.colima/default/colima.yaml" 2>/dev/null)
 if [ "$k8s_enabled" != "true" ]; then
+{{- if .isWorkComputer }}
+    # Atlas (tfcdev stack) wants a big VM and Rosetta for its linux/amd64 services.
+    colima start --kubernetes --cpu 6 --memory 12 --vm-type vz --vz-rosetta
+{{- else }}
     colima start --kubernetes --cpu 4 --memory 4
+{{- end }}
     colima stop
 fi
 brew services start colima

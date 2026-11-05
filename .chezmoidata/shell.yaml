@@ -99,6 +99,10 @@ shell:
             - { name: "AGENT_PATH", value: "$HOME/work/hashicorp/tfc-agent" }
             - { name: "ATLAS_ORG_NAME", value: "hashicorp" }
             - { name: "_TFC_AGENT_STACK_COMPONENTS_ENABLED", value: "1" }
+            # Atlas' darwin compose file bind-mounts Docker Desktop's SSH agent
+            # socket, which doesn't exist in the colima VM. Atlas clones via
+            # GITHUB_TOKEN now, so any existing path satisfies the mount.
+            - { name: "SSH_AUTH_SOCK_HOST", value: "/dev/null" }
 
             # Observability stack ports. The agent sends OTLP to the collector,
             # which fans traces out to Jaeger and metrics out to Prometheus.
@@ -115,6 +119,9 @@ shell:
             - { name: "HOMEBREW_PREFIX", value: "/opt/homebrew" }
             - { name: "HOMEBREW_CELLAR", value: "/opt/homebrew/Cellar" }
             - { name: "HOMEBREW_REPOSITORY", value: "/opt/homebrew" }
+            # tfcdev ignores docker contexts and only honours DOCKER_HOST, so
+            # point everything at colima's socket explicitly.
+            - { name: "DOCKER_HOST", value: "unix://$HOME/.colima/default/docker.sock" }
 
         work:
             - { name: "AWS_PROFILE", value: "sandbox" }

@@ -8,10 +8,8 @@ set -e
 echo "{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/bsy6lnkterdbzkut4hx5zkhpiq/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}" | docker login -u {{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/bsy6lnkterdbzkut4hx5zkhpiq/Benutzername" "EI6GPO6VNJAVLGDDID3B75JI6E" }} --password-stdin
 
 {{ if .isWorkComputer -}}
-# Log into Artifactory
-echo "{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/5lszn3pggcz43uzwjtiyxaf6ju/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}" | docker login tf-cloud-local.artifactory.hashicorp.engineering -u {{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/5lszn3pggcz43uzwjtiyxaf6ju/username" "EI6GPO6VNJAVLGDDID3B75JI6E" }} --password-stdin
-
-echo "{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/5lszn3pggcz43uzwjtiyxaf6ju/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}" | docker login docker.artifactory.hashicorp.engineering -u {{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/5lszn3pggcz43uzwjtiyxaf6ju/username" "EI6GPO6VNJAVLGDDID3B75JI6E" }} --password-stdin
+# Artifactory is handled by the docker-credential-doormat helper (credHelpers
+# in ~/.docker/config.json); static `docker login` entries break tfcdev health.
 
 # Log into Quay
 echo "{{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/csalfy3szkm6pcawi424rjrgmi/password" "EI6GPO6VNJAVLGDDID3B75JI6E" }}" | docker login quay.io -u {{ onepasswordRead "op://gv2pj3dcyg2wxx3ahtvgdamp2e/csalfy3szkm6pcawi424rjrgmi/username" "EI6GPO6VNJAVLGDDID3B75JI6E" }} --password-stdin
