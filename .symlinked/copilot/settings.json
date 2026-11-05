@@ -1,0 +1,24 @@
+{
+  "allowedUrls": [
+    "https://docs.github.com",
+    "https://raw.githubusercontent.com",
+    "http://127.0.0.1:12306",
+    "https://registry.terraform.io",
+    "https://docs.aws.amazon.com",
+    "https://mise.jdx.dev"
+  ],
+  "experimental": true,
+  "model": "claude-opus-5.5",
+  "effortLevel": "high",
+  "extraKnownMarketplaces": {
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "ponytail@ponytail": true
+  }
+}

@@ -193,6 +193,11 @@ output.
   Claude Code writes this file itself (`/config`, plugin installs), so treat a
   `chezmoi diff` here as real drift to fold back into the source rather than
   something to overwrite blindly.
+- **Copilot CLI** (`.symlinked/copilot/settings.json` ←
+  `dot_copilot/symlink_settings.json.tmpl`): work computer only.
+  `~/.copilot/settings.json` is symlinked into the repo because the CLI writes
+  it itself (`/model`, plugins), so in-app changes show up in `git status`.
+  Only this one file is managed; the rest of `~/.copilot` is session state.
 - **Ghostty** (`dot_config/ghostty/config`): one file, deliberately. Ghostty
   reads both `~/.config/ghostty/config` and the macOS-native
   `~/Library/Application Support/com.mitchellh.ghostty/config` and *merges*

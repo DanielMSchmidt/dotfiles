@@ -22,4 +22,5 @@ Library/LaunchAgents/com.danielschmidt.ollama.plist
 
 {{ if not .isWorkComputer }}
 .pi/agent/packages/terraform-workflow
+.copilot/settings.json
 {{ end }}
