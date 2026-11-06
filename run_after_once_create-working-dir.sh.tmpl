@@ -37,8 +37,10 @@ end
 cd $HOME/work/hashicorp/atlas
 
 
-if ! test -f $HOME/work/hashicorp/atlas/tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
-    op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" >./tmp/{{ onepasswordRead "op://qmgmv3ijjikw6elw25sersnbsy/w56wflng6umcvxixwaw7jcpvxy/public key" "2HZZS3CSKVA7REGL25XWFDGOPE" }}
+# Read at runtime from atlas so the key name stays out of this repo and rendering doesn't need the HashiCorp 1Password account
+set EJSON_PUBLIC_KEY (jq -r ._public_key $HOME/work/hashicorp/atlas/local/secrets/local_secrets.ejson)
+if ! test -f $HOME/work/hashicorp/atlas/tmp/$EJSON_PUBLIC_KEY
+    op document get w56wflng6umcvxixwaw7jcpvxy --vault="qmgmv3ijjikw6elw25sersnbsy" --account="2HZZS3CSKVA7REGL25XWFDGOPE" >./tmp/$EJSON_PUBLIC_KEY
 end
 
 {{ end -}}
