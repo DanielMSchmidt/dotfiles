@@ -74,6 +74,31 @@ function atlas_open -d "Opens atlas UI"
     open "https://$(atlas_hostname)"
 end
 
+function atlas_up -d "Starts the atlas stack (with tfcdev secrets) and the frontend watch build"
+    # tfcdev stack up doesn't inject secrets; without them vault and ngrok crash-loop
+    fish -c "cd $ATLAS_PATH; and tfcdev env 2>/dev/null | source; and tfcdev stack up $argv"
+    and atlas_frontend_watch
+end
+
+function atlas_frontend_watch -d "Rebuilds frontend/atlas/dist on change in the background (the ui container serves dist)"
+    set -l log /tmp/atlas-frontend-watch.log
+    if pgrep -f "ember build --watch" >/dev/null
+        echo "Frontend watch already running (log: $log)"
+        return
+    end
+    nohup pnpm --dir $ATLAS_PATH/frontend/atlas exec ember build --watch --environment=development >$log 2>&1 &
+    disown
+    echo "Frontend watch started (log: $log, stop: pkill -f 'ember build --watch')"
+end
+
+function atlas_console -d "Opens a rails console in the atlas container"
+    tfcdev -chdir $ATLAS_PATH stack console --service atlas /usr/local/bundle/bin/bundle exec rails console
+end
+
+function atlas_test -d "Runs atlas rspec tests; paths are relative to the atlas root, e.g. atlas_test spec/models/run_spec.rb:42"
+    tfcdev -chdir $ATLAS_PATH stack console --service atlas /usr/local/bundle/bin/bundle exec rspec $argv
+end
+
 function atlas_logs -d "Watches atlas logs"
     set CURRENT_DIR (pwd)
     cd $ATLAS_PATH && tfcdev stack logs atlas && cd $CURRENT_DIR
@@ -172,12 +197,6 @@ function goTfeTests -d "Run go-tfe integration tests"
     set TFE_ADDRESS "https://$(atlas_hostname)"
     set TFE_TOKEN (atlas_token)
     ENABLE_BETA=1 OAUTH_CLIENT_GITHUB_TOKEN=$GITHUB_TOKEN go test ./... -v
-end
-
-function atlas_rspec -d "Run atlas rspec tests"
-    set CURRENT_DIR (pwd)
-    
-    cd $ATLAS_PATH && tfcdev stack console /usr/local/bundle/bin/bundle exec rspec $argv && cd $CURRENT_DIR
 end
 
 function jaeger_start -d "Starts Jaeger Tracing"
